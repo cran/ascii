@@ -19,7 +19,17 @@ asciiDataFrame <- proto(expr = {
     footer,
     align,
     col.width,
-    style) proto(.,
+    style,
+    cgroup,
+    n.cgroup,
+    calign,
+    cvalign,
+    cstyle,    
+    rgroup,
+    n.rgroup,
+    ralign,
+    rvalign,
+    rstyle) proto(.,
     x = x,
     include.rownames = include.rownames,
     include.colnames = include.colnames,
@@ -37,16 +47,30 @@ asciiDataFrame <- proto(expr = {
     footer = footer,
     align = align,
     col.width = col.width,
-    style = style)
+    style = style,
+    cgroup = cgroup,
+    n.cgroup = n.cgroup,
+    calign = calign,
+    cvalign = cvalign,
+    cstyle = cstyle, 
+    rgroup = rgroup,
+    n.rgroup = n.rgroup,
+    ralign = ralign,
+    rvalign = rvalign,
+    rstyle = rstyle
+)
 
   charac <- function(.) {
     # detection des colonnes numeriques
     numerics <- sapply(.$x, is.numeric)
     # adaption de certains parametres
     # format <- unlist(strsplit(format, "")) # No, format could be "fg" -> must be a vector
-    format <- rep(.$format, length.out = ncol(.$x))
-    digits <- rep(.$digits, length.out = ncol(.$x))
-
+    if (!is.matrix(.$format)) format <- t(matrix(rep(.$format, length.out = ncol(.$x)), ncol(.$x), nrow(.$x), F))
+    else format <- apply(t(apply(.$format, 1, rep, length = ncol(.$x))), 2, rep, length = nrow(.$x))
+#    digits <- rep(.$digits, length.out = ncol(.$x))
+    if (!is.matrix(.$digits)) digits <- t(matrix(rep(.$digits, length.out = ncol(.$x)), ncol(.$x), nrow(.$x), F))
+    else digits <- apply(t(apply(.$digits, 1, rep, length = ncol(.$x))), 2, rep, length = nrow(.$x))
+ 
     # transformation de toute la dataframe en caracteres
     charac.x <- apply(format(.$x, trim = T), 2, as.character)
     if (is.vector(charac.x)) charac.x <- t(charac.x) # si une seule dimension
@@ -61,8 +85,8 @@ asciiDataFrame <- proto(expr = {
       cnoms <- c("", cnoms)
 
       # adaptation de certains parametres
-      format <- c("f", format)
-      digits <- c(0, digits)
+      format <- cbind("f", format)
+      digits <- cbind(0, digits)
       numerics <- c(FALSE, numerics)
     }
     if (.$include.colnames) {
@@ -75,8 +99,8 @@ asciiDataFrame <- proto(expr = {
     for (i in 1:ncol(charac.x)) {
       if (numerics[i]) {
         charac.x[, i][charac.x[, i] == "NA"] <- "" # necessaire avant le formatage des nombres avec formatC(as.numeric(...))
-        if (.$include.colnames)  charac.x[2:nrow(charac.x),i] <- formatC(as.numeric(charac.x[2:nrow(charac.x),i]), format = format[i], digits = digits[i], decimal.mark = .$decimal.mark)
-        if (!.$include.colnames) charac.x[,i] <- formatC(as.numeric(charac.x[,i]), format = format[i], digits = digits[i], decimal.mark = .$decimal.mark)
+        if (.$include.colnames)  charac.x[2:nrow(charac.x),i] <- apply(as.matrix(as.numeric(charac.x[2:nrow(charac.x),i])), 2, Vectorize(formatC), digits = digits[,i], format = format[,i])
+        if (!.$include.colnames)  charac.x[,i] <- apply(as.matrix(as.numeric(charac.x[,i])), 2, Vectorize(formatC), digits = digits[,i], format = format[,i])
       }
       charac.x[,i] <- sub("(^ *)(NA)( *$)", replacement, charac.x[,i])
       charac.x[,i] <- format(charac.x[,i], justify = "left")
@@ -87,12 +111,40 @@ asciiDataFrame <- proto(expr = {
 
   show.asciidoc <- function(.) {
     charac.x <- charac(.)
-    # cat result
-    rows <- apply(charac.x, 1, function(x) paste("|", paste(x, collapse = "|"), sep = ""))
+    if (.$align != "") {  
+      align <- unlist(strsplit(.$align, ""))
+      align <- rep(align, length.out = ncol)
+    } else align = .$align
+
+    if (.$valign != "") {  
+      valign <- rep(.$valign, length.out = ncol)
+    } else valign = .$valign
+    
+    if (.$style != "") {
+      style <- unlist(strsplit(.$style, ""))
+      style <- rep(style, length.out = ncol(charac.x))
+    } else style = .$style
+    
+    rows <- apply(charac.x, 1, function(x) paste(paste("", Vectorize(cells)(align = align, valign = valign, style = style), "| ", x, sep = ""), collapse = " "))
+    
+    if (!is.null(.$rgroup)) {
+      pos.rgroup <- c(1, 1+cumsum(.$n.rgroup))[1:length(.$n.rgroup)]
+      rows[pos.rgroup] <- paste(paste(cells(span = paste(".", .$n.rgroup, "+", sep = ""), align = .$ralign, valign = .$rvalign, style = .$rstyle), .$rgroup, sep = "| "), rows[pos.rgroup], sep = " ")
+    }
+    
+    if (sum(.$col.width) > length(.$col.width)) {
+      col.width <- paste(rep(.$col.width, length.out = ncol(charac.x) + !is.null(.$rgroup)), collapse = ",")
+    } else col.width <- ""
+    
     maxchars <- max(nchar(rows)) - 1
+
     topbot <- paste("|", paste(rep("=", maxchars), collapse = ""), sep = "")
-    cat(header.asciidoc(caption = .$caption, caption.level = .$caption.level, frame = .$frame, grid = .$grid, valign = .$valign, header = .$header, footer = .$footer, cols = cols(ncol(charac.x), align = .$align, col.width = .$col.width, style = .$style), width = .$width))
+    cat(header.asciidoc(caption = .$caption, caption.level = .$caption.level, frame = .$frame, grid = .$grid, valign = .$valign, header = .$header, footer = .$footer, cols = col.width, width = .$width))
+    
     cat(topbot, "\n")
+    if (!is.null(.$cgroup)) {
+      cat(paste(cells(span = paste(.$n.cgroup, "+", sep = ""), align = .$calign, valign = .$cvalign, style = .$cstyle), .$cgroup, sep = "| "), "\n")
+    }
     cat(rows, sep = "\n")
     cat(topbot, "\n")
   }

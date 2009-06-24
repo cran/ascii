@@ -1,0 +1,7 @@
+= tests de sweavesyntaxascii
+
+== essai
+
+Sexpr:[2]
+
+Sexpr:{letters[1]} ] 

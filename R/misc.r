@@ -24,8 +24,24 @@ cols <- function(ncol, align = "", col.width = 1, style = "") {
   res <- paste(align, col.width, style, collapse = ",", sep = "")
   return(res)
 }
-#~ cols()
-#~ cols(ncol = 3, align = "llrclr")
+
+cells <- function(span = "", align = "", valign = "", style = "") {
+  
+  if (align != "") {  
+    align[align == "l"] <- "<"
+    align[align == "c"] <- "^"
+    align[align == "r"] <- ">"
+  }
+
+  if (valign != "") {  
+    valign[valign == "top"]    <- ".<"
+    valign[valign == "middle"] <- ".^"
+    valign[valign == "bottom"] <- ".>"
+  }
+  
+  res <- paste(span, align, valign, style, sep = "")
+  return(res)
+}
 
 # generate headers for asciidoc
 header.asciidoc <- function(caption = "", caption.level = "", frame = "", grid = "", valign = "", header = FALSE, footer = FALSE, cols = "", width = 0) {
@@ -166,5 +182,5 @@ beauty.textile <- function(x, beauti = c("e", "m", "s", "header", "r", "c")) {
   }
   return(x)
 }
-beauty.textile(1:4, "header")
+
 
