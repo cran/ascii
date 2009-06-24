@@ -1,5 +1,0 @@
-= tests de sweavesyntaxascii
-
-Sexpr:[2]
-
-Sexpr:{letters[1]} ] 
