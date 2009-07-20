@@ -93,6 +93,7 @@ makeRweaveAsciidocCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 
           chunkexps <- try(parse(text=chunk), silent=TRUE)
           RweaveTryStop(chunkexps, options)
+
           openSinput <- FALSE
           openSchunk <- FALSE
 
@@ -164,6 +165,7 @@ makeRweaveAsciidocCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                 sink(file=tmpcon)
                 err <- NULL
                 if(options$eval) err <- evalFunc(ce, options)
+
                 cat("") # make sure final line is complete
                 sink()
                 output <- readLines(tmpcon)
@@ -476,12 +478,6 @@ RweaveTryStop <- function(err, options){
 
 ###**********************************************************
 
-Stangle <- function(file, driver=Rtangle(),
-                    syntax=getOption("SweaveSyntax"), ...)
-{
-    Sweave(file=file, driver=driver, ...)
-}
-
 RtangleAsciidoc <-  function()
 {
     list(setup = RtangleAsciidocSetup,
@@ -595,5 +591,3 @@ RtangleAsciidocFinish <- function(object, error=FALSE)
         for(con in object$chunkout) close(con)
     }
 }
-
-
