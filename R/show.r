@@ -5,6 +5,8 @@ asciiDataFrame <- proto(expr = {
     x,
     include.rownames,
     include.colnames,
+    rownames,
+    colnames,
     format,
     digits,
     decimal.mark,
@@ -33,6 +35,8 @@ asciiDataFrame <- proto(expr = {
     x = x,
     include.rownames = include.rownames,
     include.colnames = include.colnames,
+    rownames = rownames,
+    colnames = colnames,
     format = format,
     digits = digits,
     decimal.mark = decimal.mark,
@@ -78,6 +82,13 @@ asciiDataFrame <- proto(expr = {
     charac.x <- as.data.frame(charac.x, , stringsAsFactors = F)
 
     # rownames and colnames
+    if (!is.null(.$rownames)) {
+      rownames(.$x) <- rep(.$rownames, length.out = nrow(.$x))
+    }
+    if (!is.null(.$colnames)) {
+      colnames(.$x) <- rep(.$colnames, length.out = ncol(.$x))
+    }
+    
     rnoms <- rownames(.$x)
     cnoms <- names(.$x)
     if (.$include.rownames) {
@@ -99,8 +110,8 @@ asciiDataFrame <- proto(expr = {
     for (i in 1:ncol(charac.x)) {
       if (numerics[i]) {
         charac.x[, i][charac.x[, i] == "NA"] <- "" # necessaire avant le formatage des nombres avec formatC(as.numeric(...))
-        if (.$include.colnames)  charac.x[2:nrow(charac.x),i] <- apply(as.matrix(as.numeric(charac.x[2:nrow(charac.x),i])), 2, Vectorize(formatC), digits = digits[,i], format = format[,i])
-        if (!.$include.colnames)  charac.x[,i] <- apply(as.matrix(as.numeric(charac.x[,i])), 2, Vectorize(formatC), digits = digits[,i], format = format[,i])
+        if (.$include.colnames)  charac.x[2:nrow(charac.x),i] <- apply(as.matrix(as.numeric(charac.x[2:nrow(charac.x),i])), 2, Vectorize(formatC), digits = digits[,i], format = format[,i], decimal.mark = .$decimal.mark)
+        if (!.$include.colnames)  charac.x[,i] <- apply(as.matrix(as.numeric(charac.x[,i])), 2, Vectorize(formatC), digits = digits[,i], format = format[,i], decimal.mark = .$decimal.mark)
       }
       charac.x[,i] <- sub("(^ *)(NA)( *$)", replacement, charac.x[,i])
       charac.x[,i] <- format(charac.x[,i], justify = "left")
@@ -128,8 +139,21 @@ asciiDataFrame <- proto(expr = {
     rows <- apply(charac.x, 1, function(x) paste(paste("", Vectorize(cells)(align = align, valign = valign, style = style), "| ", x, sep = ""), collapse = " "))
     
     if (!is.null(.$rgroup)) {
-      pos.rgroup <- c(1, 1+cumsum(.$n.rgroup))[1:length(.$n.rgroup)]
-      rows[pos.rgroup] <- paste(paste(cells(span = paste(".", .$n.rgroup, "+", sep = ""), align = .$ralign, valign = .$rvalign, style = .$rstyle), .$rgroup, sep = "| "), rows[pos.rgroup], sep = " ")
+      rgroup <- .$rgroup
+      n.rgroup <- .$n.rgroup
+      if (is.null(n.rgroup))
+        rgroup <- rgroup[1]
+      
+      n.rgroup <- rep(n.rgroup, length.out = length(rgroup))
+      if (sum(n.rgroup) != nrow(charac.x)) {
+        if (is.null(n.rgroup)) {
+          n.rgroup <- nrow(charac.x)
+        } else {
+          n.rgroup[length(n.rgroup)] <- n.rgroup[length(n.rgroup)] + nrow(charac.x) - sum(n.rgroup)
+        }
+      }
+      pos.rgroup <- c(1, 1+cumsum(n.rgroup))[1:length(n.rgroup)]
+      rows[pos.rgroup] <- paste(paste(cells(span = paste(".", n.rgroup, "+", sep = ""), align = .$ralign, valign = .$rvalign, style = .$rstyle), rgroup, sep = "| "), rows[pos.rgroup], sep = " ")
     }
     
     if (sum(.$col.width) > length(.$col.width)) {
@@ -143,12 +167,158 @@ asciiDataFrame <- proto(expr = {
     
     cat(topbot, "\n")
     if (!is.null(.$cgroup)) {
-      cat(paste(cells(span = paste(.$n.cgroup, "+", sep = ""), align = .$calign, valign = .$cvalign, style = .$cstyle), .$cgroup, sep = "| "), "\n")
+      cgroup <- .$cgroup
+      n.cgroup <- .$n.cgroup
+      if (is.null(n.cgroup))
+        cgroup <- cgroup[1]
+      n.cgroup <- rep(n.cgroup, length.out = length(.$cgroup))
+      if (is.null(n.cgroup))
+        n.cgroup <- 0
+      if (!is.null(.$rgroup)) {
+        cgroup <- c("", cgroup)
+        n.cgroup <- c(1, n.cgroup)
+      }
+      if (sum(n.cgroup) != ncol(charac.x)) {
+        n.cgroup[length(n.cgroup)] <- n.cgroup[length(n.cgroup)] + ncol(charac.x) - sum(n.cgroup) + !is.null(.$rgroup)
+      }
+      cat(paste(cells(span = paste(n.cgroup, "+", sep = ""), align = .$calign, valign = .$cvalign, style = .$cstyle), cgroup, sep = "| "), "\n")
     }
     cat(rows, sep = "\n")
     cat(topbot, "\n")
   }
 
+  show.sphinx <- function(.) { # Manque la classe pour les listes et les mixtes
+    # L'alignement et footer ne sont pas gérés par sphinx
+
+    charac.x <- charac(.)
+    nrowx <- nrow(charac.x)
+    ncolx <- ncol(charac.x)
+
+    if (.$style != "") {  
+      style <- unlist(strsplit(.$style, ""))
+      style <- rep(style, length.out = ncolx)
+      for (i in 1:ncolx) {
+        charac.x[,i] <- beauty.sphinx(charac.x[,i], style[i])
+      }
+    }
+
+    cgroup <- .$cgroup
+    rgroup <- .$rgroup
+    if (.$cstyle != "")
+      cgroup <- beauty.sphinx(cgroup, .$cstyle)
+    if (.$rstyle != "")
+      rgroup <- beauty.sphinx(rgroup, .$rstyle)
+
+    
+    ncharcell <- nchar(charac.x[1,]) + 2
+    
+    if (!is.null(cgroup)) {
+      n.cgroup <- .$n.cgroup
+      if (is.null(n.cgroup))
+        cgroup <- cgroup[1]
+      n.cgroup <- rep(n.cgroup, length.out = length(cgroup))
+      if (sum(n.cgroup) != ncol(charac.x)) {
+        if (is.null(n.cgroup)) {
+          n.cgroup <- ncol(charac.x)# + !is.null(rgroup)
+        } else {
+          n.cgroup[length(n.cgroup)] <- n.cgroup[length(n.cgroup)] + ncol(charac.x) - sum(n.cgroup)# + !is.null(rgroup)
+        }
+      }
+      newcgroup <- NULL
+      for (i in 1:length(cgroup))
+        newcgroup <- c(newcgroup, cgroup[i], rep("", n.cgroup[i] - 1))
+
+      names(newcgroup) <- names(charac.x) # for following rbind
+      charac.x <- rbind(data.frame(as.list(newcgroup), stringsAsFactors = FALSE, check.names = FALSE), charac.x)
+      charac.x <- format(charac.x, justify = "left")
+      newcgroup <- as.character(charac.x[1,])
+      charac.x <- charac.x[-1,]
+      
+      ccell <- cbind(cumsum(n.cgroup) - n.cgroup + 1, cumsum(n.cgroup))
+      crows <- "|"
+      for (i in 1:length(cgroup))
+        crows <- paste(crows, paste(paste(newcgroup[unique(ccell[i,1]:ccell[i,2])], collapse = "   "), "|", collapse = " "), sep = " ")
+      
+      ncharcell <- nchar(charac.x[1,]) + 2
+
+      cncharcell <- apply(cbind(cumsum(n.cgroup) - n.cgroup + 1, cumsum(n.cgroup), n.cgroup - 1), 1, function(x) sum(ncharcell[unique(x[1:2])[1]:unique(x[1:2])[length(unique(x[1:2]))]] ) + x[3])
+      cinterrows <- paste("+", paste(sapply(cncharcell, function(x) paste(rep("-", x), collapse = "")), collapse = "+"), "+", sep = "")
+    }
+
+    rows <- apply(charac.x, 1, function(x) paste("|", paste(paste(x, " |", sep = ""), collapse = " ")))
+    
+  interrows <- rep(paste("+", paste(sapply(ncharcell, function(x) paste(rep("-", x), collapse = "")), collapse = "+"), "+", sep = ""), nrowx+1)
+    if (!is.null(cgroup)) {
+      interrows <- c(cinterrows, interrows)
+      rows <- c(crows, rows)
+    }
+
+    if (!is.null(rgroup)) {
+      n.rgroup <- .$n.rgroup
+      if (is.null(n.rgroup))
+        rgroup <- rgroup[1]
+      n.rgroup <- rep(n.rgroup, length.out = length(rgroup))
+      if (is.null(n.rgroup))
+        n.rgroup <- 0
+      if (!is.null(cgroup)) {
+        rgroup <- c("", rgroup)
+        n.rgroup <- c(1, n.rgroup)
+      }
+      if (sum(n.rgroup) != nrow(charac.x)) {
+        n.rgroup[length(n.rgroup)] <- n.rgroup[length(n.rgroup)] + nrow(charac.x) - sum(n.rgroup) + !is.null(cgroup)
+      }
+      newrgroup <- rep("", sum(n.rgroup))
+      rcell <- cumsum(c(1, n.rgroup[-length(n.rgroup)]))
+      newrgroup[rcell] <- rgroup
+      rrows <- paste("| ", format(newrgroup), " ", sep = "")
+      rncharcell <- max(nchar(newrgroup)) + 2
+      rinterrows <- paste("+", paste(sapply(rncharcell, function(x) paste(rep("-", x), collapse = "")), collapse = "+"), sep = "")
+      norinterrows <- gsub("-", " ", rinterrows)
+      
+      rows <- paste(rrows, rows, sep = "")
+      tmp <- rinterrows
+      for (i in n.rgroup) {
+        if (i == 1)
+          rinterrows <- c(rinterrows, tmp)
+        if (i > 1)
+          rinterrows <- c(rinterrows, rep(norinterrows, i-1), tmp)
+      }
+      interrows <- paste(rinterrows, interrows, sep = "")
+    }
+    if (.$header)
+      interrows[2] <- gsub("-", "=", interrows[2])
+
+    cat(header.sphinx(caption = .$caption, caption.level = .$caption.level))    
+    cat(c(rbind(interrows[-length(interrows)], rows), interrows[length(interrows)]), sep = "\n")
+  }
+
+  show.org <- function(.) {
+    charac.x <- charac(.)
+    ncolx <- ncol(charac.x)
+    
+    if (.$style != "") {  
+      style <- unlist(strsplit(.$style, ""))
+      style <- rep(style, length.out = ncolx)
+      for (i in 1:ncolx) {
+        charac.x[,i] <- beauty.org(charac.x[,i], style[i])
+      }
+    }
+    
+    ncharcell <- nchar(charac.x[1,]) + 2
+    
+    rows <- apply(charac.x, 1, function(x) paste("|", paste(paste(x, " |", sep = ""), collapse = " ")))
+    
+    interrow <- paste("|", paste(sapply(ncharcell, function(x) paste(rep("-", x), collapse = "")), collapse = "+"), "+", sep = "")
+    
+    if (.$header)
+      rows <- c(rows[1], interrow, rows[-1])
+
+    cat(header.org(caption = .$caption, caption.level = .$caption.level))    
+    cat(interrow, "\n", sep = "")
+    cat(rows, sep = "\n")
+    cat(interrow, "\n", sep = "")
+  }
+  
   show.t2t <- function(.) {
     charac.x <- charac(.)
     # prise en compte du style
@@ -159,20 +329,56 @@ asciiDataFrame <- proto(expr = {
         charac.x[,i] <- beauty.t2t(charac.x[,i], style[i])
       }
     }
+
+    # prise en compte de cgroup
+    if (!is.null(.$cgroup)) {
+      n.cgroup <- .$n.cgroup
+      n.cgroup <- rep(n.cgroup, length.out = length(.$cgroup))
+      if (sum(n.cgroup) != ncol(charac.x)) {
+        if (is.null(n.cgroup)) {
+          n.cgroup <- ncol(charac.x)
+        } else {
+          n.cgroup[length(n.cgroup)] <- n.cgroup[length(n.cgroup)] + ncol(charac.x) - sum(n.cgroup)
+        }
+      }
+      cgroup <- .$cgroup
+      if (.$cstyle != "") {
+        cstyle <- rep(unlist(strsplit(.$cstyle, "")), length.out = length(cgroup))
+        cgroup <- Vectorize(beauty.t2t)(cgroup, cstyle)
+      }
+      if (.$calign != "") {
+        calign <- rep(unlist(strsplit(.$calign, "")), length.out = length(cgroup))
+        for (i in 1:length(cgroup)) {
+          if (calign[i] == "c")
+            cgroup[i] <- paste(" ", cgroup[i], " ", collapse = "")
+          if (calign[i] == "r")
+            cgroup[i] <- paste(" ", cgroup[i], collapse = "")
+        }
+      }
+      newcgroup <- paste("|", paste(paste(cgroup, lapply(n.cgroup, function(x) paste(rep("|", time = x), collapse = ""))), collapse = " "))
+    }
+    
     # prise en compte de l'alignement
     if (.$align != "") {  
       align <- unlist(strsplit(.$align, ""))
       align <- rep(align, length.out = ncol(charac.x))
       for (i in 1:ncol(charac.x)) {
-        if (length(grep("^ *$", charac.x[1, i])) == 0) {
-          if (align[i] == "c") { charac.x[1, i] <- sub("^ *", " ", charac.x[1, i]) ; charac.x[1, i] <- sub(" *$", " ", charac.x[1, i]) }
-          if (align[i] == "r") { charac.x[1, i] <- sub("^ *", " ", charac.x[1, i]) ; charac.x[1, i] <- sub(" *$", "", charac.x[1, i]) } 
+        for (j in 1:nrow(charac.x)) {
+          if (length(grep("^ *$", charac.x[j, i])) == 0) {
+            if (align[i] == "c") { charac.x[j, i] <- sub("^ *", " ", charac.x[j, i]) ; charac.x[j, i] <- sub(" *$", " ", charac.x[j, i]) }
+            if (align[i] == "r") { charac.x[j, i] <- sub("^ *", " ", charac.x[j, i]) ; charac.x[j, i] <- sub(" *$", "", charac.x[j, i]) } 
+          }
         }
       }
     }
-    # cat result
     rows <- apply(charac.x, 1, function(x) paste("| ", paste(x, collapse = " | "), sep = ""))
-    if (.$header) {
+    # cat result
+    if (!is.null(.$cgroup)) {
+      if (.$header)
+        cat("|", sep = "")
+      cat(newcgroup, "\n")
+    }
+    if (.$header & is.null(.$cgroup)) {
       rows[1] <- paste("|", rows[1], sep = "")
     }
     if (.$footer) {
@@ -223,27 +429,106 @@ asciiList <- proto(expr = {
     list.type = list.type)
 
   show.asciidoc <- function(.) {
-    if (.$list.type == "bullet") mark <- "*"
-    if (.$list.type == "number") mark <- "."
-    if (.$list.type == "none")   mark <- ""
+    if (.$list.type == "bullet") mark <- rep("*", length(.$x))
+    if (.$list.type == "number") mark <- rep(".", length(.$x))
+    if (.$list.type == "none")   mark <- rep("", length(.$x))
+    if (.$list.type == "label") {
+      if (is.null(names(.$x))) {
+        namesx <- paste("[[", 1:length(.$x), "]]", sep = "")
+      } else {
+        namesx <- names(.$x)
+      }
+      mark <- paste(namesx, "::\n  ", sep = "")
+    }
+    
     charac.x <- vector("character", length(.$x))
     for (i in 1:length(.$x)) {
-      if (is.null(.$x[[i]])) next 
-      tmp <- sub("(^.*)", paste(mark, "\\1", sep = ""), gsub('\t|(*COMMIT)(*FAIL)', mark, .$x[[i]], perl = TRUE))
+      if (is.null(.$x[[i]])) next
+      tmp <- .$x[[i]]
+      if (.$list.type == "label") tmp <- sub("^\t*", "", tmp)
+      tmp <- sub("(^.*)", paste(mark[i], "\\1", sep = ""), gsub('\t|(*COMMIT)(*FAIL)', mark, tmp, perl = TRUE))
       charac.x[i] <- sub(paste('(^\\', mark, '+)(.*)', sep = ""), '\\1 \\2', tmp)
     }
     cat(header.asciidoc(caption = .$caption, caption.level = .$caption.level))
     cat(charac.x, sep = "\n")
   }
-  show.t2t <- function(.) {
-    indent.mark <- " "
-    if (.$list.type == "bullet") mark <- "-"
-    if (.$list.type == "number") mark <- "+"
-    if (.$list.type == "none")  { mark <- ""; indent.mark = "" }
+
+  show.sphinx <- function(.) {
+    if (.$list.type == "bullet") mark <- rep("*", length(.$x))
+    if (.$list.type == "number") mark <- rep("#.", length(.$x))
+    if (.$list.type == "none")  mark <- rep("", length(.$x))
+    if (.$list.type == "label") {
+      if (is.null(names(.$x))) {
+        namesx <- paste("[[", 1:length(.$x), "]]", sep = "")
+      } else {
+        namesx <- names(.$x)
+      }
+      mark <- paste(namesx, "\n ", sep = "")
+    }
+    y <- gsub("(^\t*)(.*)", "\\1", .$x)
+    z <- NULL
+    for (i in 2:length(y))
+      z <- c(z, ifelse(y[i] != y[i-1], i-1, NA))
+
+    cat(header.sphinx(caption = .$caption, caption.level = .$caption.level), sep = "\n")
+
+    for (i in 1:length(.$x)) {
+      tmp <- .$x[[i]]
+      if (.$list.type == "label") tmp <- sub("^\t*", "", tmp)
+      tmp <- gsub('\t|(*COMMIT)(*FAIL)', "  ", tmp, perl = TRUE)
+      tmp <- sub("(^ *)", paste("\\1", mark[i], " ", sep = ""), tmp)
+      cat(tmp, "\n")
+      if (i %in% z)
+        cat("\n")
+    }
+  }
+
+  show.org <- function(.) {
+    indent.mark <- "  "
+    if (.$list.type == "bullet") mark <- rep("-", length(.$x))
+    if (.$list.type == "number") mark <- paste(seq(1, length(.$x), 1), ".", sep = "")
+    if (.$list.type == "none")  { mark <- rep("", length(.$x)); indent.mark = ""}
+    if (.$list.type == "label") {
+      if (is.null(names(.$x))) {
+        namesx <- paste("[ [ ", 1:length(.$x), " ] ]", sep = "")
+      } else {
+        namesx <- names(.$x)
+      }
+      mark <- paste("- ", namesx, " ::", sep = "")
+      indent.mark = "  "
+    }
+    
     charac.x <- vector("character", length(.$x))
     for (i in 1:length(.$x)) {
-      tmp <- gsub('\t|(*COMMIT)(*FAIL)', indent.mark, .$x[[i]], perl = TRUE)
-      charac.x[i] <- sub("(^ *)", paste("\\1", mark, indent.mark, sep = ""), tmp)
+      tmp <- .$x[[i]]
+      tmp <- gsub('\t|(*COMMIT)(*FAIL)', indent.mark, tmp, perl = TRUE)
+      charac.x[i] <- sub("(^ *)", paste("\\1", mark[i], " ", sep = ""), tmp)
+    }
+    cat(header.org(caption = .$caption, caption.level = .$caption.level))
+    cat(charac.x, sep = "\n")
+  }
+
+  show.t2t <- function(.) {
+    indent.mark <- " "
+    if (.$list.type == "bullet") mark <- rep("-", length(.$x))
+    if (.$list.type == "number") mark <- rep("+", length(.$x))
+    if (.$list.type == "none")  { mark <- rep("", length(.$x)); indent.mark = "" }
+    if (.$list.type == "label") {
+      if (is.null(names(.$x))) {
+        namesx <- paste("[[", 1:length(.$x), "]]", sep = "")
+      } else {
+        namesx <- names(.$x)
+      }
+      mark <- paste(": ", namesx, "\n", sep = "")
+      indent.mark = ""
+    }
+    
+    charac.x <- vector("character", length(.$x))
+    for (i in 1:length(.$x)) {
+      tmp <- .$x[[i]]
+      if (.$list.type == "label") tmp <- sub("^\t*", "", tmp)
+      tmp <- gsub('\t|(*COMMIT)(*FAIL)', indent.mark, tmp, perl = TRUE)
+      charac.x[i] <- sub("(^ *)", paste("\\1", mark[i], indent.mark, sep = ""), tmp)
     }
     cat(header.t2t(caption = .$caption, caption.level = .$caption.level))
     cat(charac.x, sep = "\n")
@@ -268,6 +553,25 @@ asciiMixed <- proto(expr = {
       if (i != length(args)) cat("\n") 
     }
   }
+  
+  show.sphinx <- function(.) {
+    args <- rev(as.list(.))
+    for (i in seq_along(args)) {
+      if (is.null(args[[i]])) next
+      print(args[[i]], type = "sphinx") 
+      if (i != length(args)) cat("\n") 
+    }
+  }
+
+  show.org <- function(.) {
+    args <- rev(as.list(.))
+    for (i in seq_along(args)) {
+      if (is.null(args[[i]])) next
+      print(args[[i]], type = "org") 
+      if (i != length(args)) cat("\n") 
+    }
+  }
+
   show.t2t <- function(.) {
     args <- rev(as.list(.))
     for (i in seq_along(args)) {

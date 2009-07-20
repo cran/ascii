@@ -20,6 +20,7 @@
 \alias{ascii.matrix}
 \alias{ascii.numeric}
 \alias{ascii.prcomp}
+\alias{ascii.simple.list}
 \alias{ascii.smooth.spline}
 \alias{ascii.summary.aov}
 \alias{ascii.summary.aovlist}
@@ -32,27 +33,38 @@
 \alias{ascii.ts}
 \alias{ascii.zoo}
 \alias{package-ascii}
-\title{Export R object to asciidoc or txt2tags}
+\title{Export R objects to several markup languages}
 \description{
-  Function converting an R object to an \code{ascii} object, which can then be printed with Asciidoc or txt2tags syntax.
+  Function converting an R object to an \code{ascii} object, which can
+  then be printed with asciidoc, txt2tags, sphinx or org syntax.
 }
 \usage{
   \method{ascii}{default}(x, 
-    include.rownames = TRUE, include.colnames = TRUE, 
+    include.rownames = TRUE, include.colnames = TRUE,
+    rownames = NULL, colnames = NULL, 
     format = "f", digits = 2, decimal.mark = ".", na.print = "", 
-    caption = "", caption.level = ".", width = 0, frame = "", grid = "", valign = "", 
-    header = TRUE, footer = FALSE, align = "", col.width = 1, style = "",
-    cgroup = NULL, n.cgroup = NULL, calign = "", cvalign = "", cstyle = "",
-    rgroup = NULL, n.rgroup = NULL, ralign = "", rvalign = "", rstyle = "", \dots)
+    caption = "", caption.level = "", width = 0, frame = "",
+    grid = "", valign = "", header = TRUE, footer = FALSE,
+    align = "", col.width = 1, style = "", cgroup = NULL,
+    n.cgroup = NULL, calign = "", cvalign = "", cstyle = "",
+    rgroup = NULL, n.rgroup = NULL, ralign = "", rvalign = "",
+    rstyle = "", \dots)
   \method{ascii}{describe}(x, condense = TRUE, \dots)
-  \method{ascii}{summary.table}(x, caption = "", caption.level = ".", list.type = "bullet", \dots)
-  \method{ascii}{list}(x, caption = "", caption.level = ".", list.type = "bullet", \dots)
-  \method{ascii}{smooth.spline}(x, caption = "", caption.level = ".", list.type = "bullet", \dots)
+  \method{ascii}{summary.table}(x, caption = "", caption.level = "", list.type = "bullet", \dots)
+  \method{ascii}{list}(x, caption = "", caption.level = "", list.type = "bullet", \dots)
+  \method{ascii}{smooth.spline}(x, caption = "", caption.level = "", list.type = "bullet", \dots)
 }
 \arguments{
   \item{x}{An R object of class found among \code{methods(ascii)}.}
   \item{include.rownames}{logical. If \code{TRUE} the rows names are printed. Default value depends of class of \code{x}.}
-  \item{include.colnames}{logical. If \code{TRUE} the columns names are printed. Default value depends of class of \code{x}.}
+  \item{include.colnames}{logical. If \code{TRUE} the columns names are
+    printed. Default value depends of class of \code{x}.}
+  \item{rownames}{Character vector (replicated or truncated as
+    necessary) indicating rownames of the corresponding rows. If
+    \code{NULL} (default) the row names are not modified}
+  \item{colnames}{Character vector (replicated or truncated as
+    necessary) indicating colnames of the corresponding columns. If
+    \code{NULL} (default) the column names are not modified}
   \item{format}{Character vector of length equal to the number of columns of the resulting table 
                 (otherwise it will be replicated or truncated as necessary)
                 indicating the format for the corresponding columns.
@@ -130,8 +142,10 @@
                 major row headings}
   \item{condense}{default is TRUE to condense the output with regard to the 5
                   lowest and highest values and the frequency table (\code{describe()} in package \code{Hmisc}).}
-  \item{list.type}{Character vector of length one indicating the list type (\code{"bullet"}, \code{"number"} or \code{"none"}).
-                   Default is \code{"bullet"}.}
+  \item{list.type}{Character vector of length one indicating the list
+                   type (\code{"bullet"}, \code{"number"}, \code{"label"} or
+                   \code{"none"}). If \code{"label"}, \code{names(list)} is
+	           used for labels. Default is \code{"bullet"}.}
   \item{...}{Additional arguments.  (Currently ignored.)}
 }
 \details{
@@ -139,8 +153,8 @@
   For example, \code{summary.table} objects produce
   a bulleted list while \code{data.frame} objects produce a table of the entire data.frame.
 
-  All arguments are active when Asciidoc syntax is produced. Whith txt2tags, \code{grid}, 
-  \code{valign}, \code{col.width} and \code{style} are inactive.
+  Sometimes, arguments are not active, depending of the features implemented in the markup
+  language generated. All arguments are active when asciidoc syntax is produced.
 
   The available method functions for \code{ascii} are given by \code{methods(ascii)}.
   Users can extend the list of available classes by writing methods for the generic function \code{ascii}.
@@ -157,6 +171,8 @@ ascii(esoph[1:10,])
 tab <- table(esoph$agegp, esoph$alcgp)
 ascii(tab)
 print(ascii(tab), type = "t2t")
+print(ascii(tab), type = "sphinx")
+print(ascii(tab), type = "org")
 ascii(summary(tab))
 }
 \keyword{print}

@@ -71,12 +71,12 @@ header.asciidoc <- function(caption = "", caption.level = "", frame = "", grid =
   }
   else res <- ""
   if (caption != "") {
-    if (caption.level == ".") res <- paste(".", caption, "\n", res, sep = "") 
+    if (caption.level == "." | caption.level == "") res <- paste(".", caption, "\n", res, sep = "") 
     else if (is.numeric(caption.level) & caption.level > 0) { lev <- paste(rep("=", caption.level), collapse = "") ; res <- paste(lev, " ", caption, " ", lev, "\n\n", res, sep = "") } 
     else if (caption.level == "s") res <- paste(beauty.asciidoc(caption, "s"), "\n\n", sep = "")
     else if (caption.level == "e") res <- paste(beauty.asciidoc(caption, "e"), "\n\n", sep = "")
     else if (caption.level == "m") res <- paste(beauty.asciidoc(caption, "m"), "\n\n", sep = "")
-    else res <- paste(caption, "\n\n", res, sep = "") 
+    else if (caption.level == "none") res <- paste(caption, "\n\n", res, sep = "") 
   }
   return(res)
 }
@@ -102,7 +102,7 @@ beauty.asciidoc <- function(x, beauti = c("e", "m", "s")) {
 # TXT2TAGS #
 ############
 
-# generate headers for asciidoc
+# generate headers for txt2tags
 header.t2t <- function(caption = "", caption.level = "") {
   res <- ""
   if (caption != "") {
@@ -128,6 +128,100 @@ beauty.t2t <- function(x, beauti = c("e", "m", "s")) {
   if (beauti == "m") {
     y <- as.logical((regexpr("^ *$", x)+1)/2) | as.logical((regexpr("``.*``", x)+1)/2) # it seulement si != de "" et si pas de mono
     if (length(x[!y]) != 0) x[!y] <-sub("(^ *)([:alpha]*)", "\\1``\\2", sub("([:alpha:]*)( *$)", "\\1``\\2", x[!y])) 
+  }
+  return(x)
+}
+
+##########
+# Sphinx #
+##########
+
+# generate headers for sphinx
+header.sphinx <- function(caption = "", caption.level = "") {
+  niv <- c("=", "-", "~", "^", "+")
+  ncharcap <- nchar(caption)
+  res <- ""
+  if (caption != "") {
+    if (is.numeric(caption.level) & caption.level > 0) {
+      res <- paste(caption, paste(paste(rep(niv[caption.level], ncharcap), collapse = ""), "\n", sep = ""), sep = "\n")
+    } else if (is.character(caption.level) & caption.level %in% c("s", "e", "m")) {
+      if (caption.level == "s")
+        res <- paste(beauty.sphinx(caption, "s"), "\n\n", sep = "")
+      else if (caption.level == "e")
+        res <- paste(beauty.sphinx(caption, "e"), "\n\n", sep = "")
+      else if (caption.level == "m")
+        res <- paste(beauty.sphinx(caption, "m"), "\n\n", sep = "")
+    } else if (is.character(caption.level) & caption.level != "" & caption.level != "none") {
+      res <- paste(caption, paste(paste(rep(caption.level, ncharcap), collapse = ""), "\n", sep = ""), sep = "\n")
+    } else if (caption.level == "" | caption.level == "none") {
+      res <- paste(caption, "\n\n", sep = "")
+    }
+  } 
+  return(res)
+}
+  
+# beautify for sphinx
+beauty.sphinx <- function(x, beauti = c("e", "m", "s")) {
+  if (beauti == "s") {
+    y <- as.logical((regexpr("^ *$", x)+1)/2) | as.logical((regexpr("\\*\\*.*\\*\\*", x)+1)/2) # bold seulement si != de "" et si pas de bold
+    if (length(x[!y]) != 0) x[!y] <- sub("(^ *)([:alpha]*)", "\\1\\*\\*\\2", sub("([:alpha:]*)( *$)", "\\1\\*\\*\\2", x[!y]))
+    if (length(x[y]) != 0) x[y] <- sub("(^ *$)", "\\1    ", x[y]) # rajouter suffisamment d'espaces lorsque la case est vide pour l'alignement globale
+  }
+  if (beauti == "e") {
+    y <- as.logical((regexpr("^ *$", x)+1)/2) | as.logical((regexpr("\\*.*\\*", x)+1)/2) # it seulement si != de "" et si pas de it
+    if (length(x[!y]) != 0) x[!y] <-sub("(^ *)([:alpha]*)", "\\1\\*\\2", sub("([:alpha:]*)( *$)", "\\1\\*\\2", x[!y])) 
+    if (length(x[y]) != 0) x[y] <- sub("(^ *$)", "\\1  ", x[y]) # rajouter suffisamment d'espaces lorsque la case est vide pour l'alignement globale
+  }
+  if (beauti == "m") {
+    y <- as.logical((regexpr("^ *$", x)+1)/2) | as.logical((regexpr("``.*``", x)+1)/2) # it seulement si != de "" et si pas de mono
+    if (length(x[!y]) != 0) x[!y] <-sub("(^ *)([:alpha]*)", "\\1``\\2", sub("([:alpha:]*)( *$)", "\\1``\\2", x[!y])) 
+    if (length(x[y]) != 0) x[y] <- sub("(^ *$)", "\\1    ", x[y]) # rajouter suffisamment d'espaces lorsque la case est vide pour l'alignement globale
+  }
+  return(x)
+}
+
+#######
+# Org #
+#######
+
+# generate headers for org
+header.org <- function(caption = "", caption.level = "") {
+  res <- ""
+  if (caption != "") {
+    if (is.numeric(caption.level) & caption.level > 0) {
+      res <- paste(paste(rep("*", caption.level), collapse = ""), caption, "\n")
+    }
+    else if (is.character(caption.level) & caption.level %in% c("s", "e", "m")) {
+      if (caption.level == "s")
+        res <- paste(beauty.org(caption, "s"), "\n", sep = "")
+      else if (caption.level == "e")
+        res <- paste(beauty.org(caption, "e"), "\n", sep = "")
+      else if (caption.level == "m")
+        res <- paste(beauty.org(caption, "m"), "\n", sep = "")
+    } else if (caption.level == "none")
+      res <- paste(caption, "\n", sep = "")
+    else 
+      res <- paste("#+CAPTION: ", caption, "\n", sep = "")
+    }
+  return(res)
+}
+
+# beautify for org
+beauty.org <- function(x, beauti = c("e", "m", "s")) {
+  if (beauti == "s") {
+    y <- as.logical((regexpr("^ *$", x)+1)/2) | as.logical((regexpr("\\*.*\\*", x)+1)/2) # bold seulement si != de "" et si pas de bold
+    if (length(x[!y]) != 0) x[!y] <- sub("(^ *)([:alpha]*)", "\\1\\*\\2", sub("([:alpha:]*)( *$)", "\\1\\*\\2", x[!y]))
+    if (length(x[y]) != 0) x[y] <- sub("(^ *$)", "\\1    ", x[y]) # rajouter suffisamment d'espaces lorsque la case est vide pour l'alignement globale
+  }
+  if (beauti == "e") {
+    y <- as.logical((regexpr("^ *$", x)+1)/2) | as.logical((regexpr("/.*/", x)+1)/2) # it seulement si != de "" et si pas de it
+    if (length(x[!y]) != 0) x[!y] <-sub("(^ *)([:alpha]*)", "\\1/\\2", sub("([:alpha:]*)( *$)", "\\1/\\2", x[!y])) 
+    if (length(x[y]) != 0) x[y] <- sub("(^ *$)", "\\1  ", x[y]) # rajouter suffisamment d'espaces lorsque la case est vide pour l'alignement globale
+  }
+  if (beauti == "m") {
+    y <- as.logical((regexpr("^ *$", x)+1)/2) | as.logical((regexpr("=.*=", x)+1)/2) # it seulement si != de "" et si pas de mono
+    if (length(x[!y]) != 0) x[!y] <-sub("(^ *)([:alpha]*)", "\\1=\\2", sub("([:alpha:]*)( *$)", "\\1=\\2", x[!y])) 
+    if (length(x[y]) != 0) x[y] <- sub("(^ *$)", "\\1    ", x[y]) # rajouter suffisamment d'espaces lorsque la case est vide pour l'alignement globale
   }
   return(x)
 }
