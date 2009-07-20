@@ -1,3 +1,9 @@
+2011/xx/xx
+~~~~~~~~~~
+
+* +ext+ option is replaced by +format+
+* add a method for mtable objects (memisc package)
+
 2011/04/17
 ~~~~~~~~~~
 
