@@ -1,21 +1,21 @@
-RweaveOrg <- function()
+RweaveTextile <- function()
 {
-    list(setup = RweaveOrgSetup,
-         runcode = RweaveOrgRuncode,
-         writedoc = RweaveOrgWritedoc,
-         finish = RweaveOrgFinish,
-         checkopts = RweaveOrgOptions)
+    list(setup = RweaveTextileSetup,
+         runcode = RweaveTextileRuncode,
+         writedoc = RweaveTextileWritedoc,
+         finish = RweaveTextileFinish,
+         checkopts = RweaveTextileOptions)
 }
 
-RweaveOrgSetup <-
+RweaveTextileSetup <-
     function(file, syntax, output=NULL, quiet=FALSE, debug=FALSE,
              stylepath, ...)
 {
     dots <- list(...)
     if(is.null(output)) {
         prefix.string <- basename(sub(syntax$extension, "", file))
-        output <- paste(prefix.string, "org", sep=".")
-    } else prefix.string <- basename(sub("\\.org$", "", output))
+        output <- paste(prefix.string, "txt", sep=".")
+    } else prefix.string <- basename(sub("\\.txt$", "", output))
 
     if(!quiet) cat("Writing to file ", output, "\n",
                    "Processing code chunks ...\n", sep="")
@@ -33,7 +33,7 @@ RweaveOrgSetup <-
     options[names(dots)] <- dots
 
     ## to be on the safe side: see if defaults pass the check
-    options <- RweaveOrgOptions(options)
+    options <- RweaveTextileOptions(options)
 
     list(output=output, 
          debug=debug, quiet=quiet, syntax = syntax,
@@ -41,12 +41,12 @@ RweaveOrgSetup <-
          srcfile=srcfile(file))
 }
 
-makeRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
+makeRweaveTextileCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 {
     ## Return a function suitable as the 'runcode' element
     ## of an Sweave driver.  evalFunc will be used for the
     ## actual evaluation of chunk code.
-    RweaveOrgRuncode <- function(object, chunk, options)
+    RweaveTextileRuncode <- function(object, chunk, options)
       {
           if(!(options$engine %in% c("R", "S"))){
               return(object)
@@ -78,7 +78,7 @@ makeRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
               ## [x][[1L]] avoids partial matching of x
               chunkout <- object$chunkout[chunkprefix][[1L]]
               if(is.null(chunkout)){
-                  chunkout <- file(paste(chunkprefix, "org", sep="."), "w")
+                  chunkout <- file(paste(chunkprefix, "txt", sep="."), "w")
                   if(!is.null(options$label))
                     object$chunkout[[chunkprefix]] <- chunkout
               }
@@ -139,7 +139,7 @@ makeRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                 if(options$echo && length(dce)){
                     if(!openSinput){
                         if(!openSchunk){
-                            cat("#+BEGIN_SRC R-transcript\n",
+                            cat("<pre>\n",
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1] <- srcline
                             thisline <- thisline + 1
@@ -189,7 +189,7 @@ makeRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                     }
                     if(options$results=="verbatim"){
                         if(!openSchunk){
-                            cat("#+BEGIN_SRC R-transcript\n",
+                            cat("<pre>\n",
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -209,7 +209,7 @@ makeRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                             openSchunk <- TRUE
                         }
                         if(openSchunk){
-                            cat("#+END_SRC\n",
+                            cat("</pre>\n",
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -248,16 +248,16 @@ makeRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
           }
 
           if(openSchunk){
-              cat("#+END_SRC\n", file=chunkout, append=TRUE)
+              cat("</pre>\n", file=chunkout, append=TRUE)
               linesout[thisline + 1L] <- srcline
               thisline <- thisline + 1L
           }
 
           if(is.null(options$label) & options$split)
-            close(chunkout)
+             close(chunkout)
 
           if(options$split & options$include){
-              cat("#+INCLUDE: \"", chunkprefix, ".org\"\n", sep="",
+              cat("<object type=\"text/plain\" data=\"", chunkprefix, ".html\" border=\"0\" style=\"overflow: hidden;\"></object>\n", sep="",
                 file=object$output, append=TRUE)
               linesout[thisline + 1L] <- srcline
               thisline <- thisline + 1L
@@ -303,7 +303,7 @@ makeRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
               }
                             
               if(options$include) {
-                  cat("[[file:", chunkprefix, ".", options$ext, "]]\n", sep="",
+                  cat("!", chunkprefix, ".", options$ext, "!\n", sep="",
                       file=object$output, append=TRUE)
                   linesout[thisline + 1L] <- srcline
                   thisline <- thisline + 1L
@@ -312,12 +312,12 @@ makeRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
           object$linesout <- c(object$linesout, linesout)
           return(object)
       }
-    RweaveOrgRuncode
+    RweaveTextileRuncode
 }
 
-RweaveOrgRuncode <- makeRweaveOrgCodeRunner()
+RweaveTextileRuncode <- makeRweaveTextileCodeRunner()
 
-RweaveOrgWritedoc <- function(object, chunk)
+RweaveTextileWritedoc <- function(object, chunk)
 {
     linesout <- attr(chunk, "srclines")
 
@@ -342,7 +342,7 @@ RweaveOrgWritedoc <- function(object, chunk)
         opts <- sub(paste(".*", object$syntax$docopt, ".*", sep=""),
                     "\\1", chunk[pos[1L]])
         object$options <- utils:::SweaveParseOptions(opts, object$options,
-                                             RweaveOrgOptions)
+                                             RweaveTextileOptions)
             chunk[pos[1L]] <- sub(object$syntax$docopt, "", chunk[pos[1L]])
     }
 
@@ -352,13 +352,13 @@ RweaveOrgWritedoc <- function(object, chunk)
     return(object)
 }
 
-RweaveOrgFinish <- function(object, error=FALSE)
+RweaveTextileFinish <- function(object, error=FALSE)
 {
     outputname <- summary(object$output)$description
     inputname <- object$srcfile$filename
     if(!object$quiet && !error)
         cat("\n",
-            gettextf("You can now use org-mode on '%s'", outputname),
+            gettextf("You can now run textile on '%s'", outputname),
             "\n", sep = "")
     close(object$output)
     if(length(object$chunkout))
@@ -383,7 +383,7 @@ RweaveOrgFinish <- function(object, error=FALSE)
     invisible(outputname)
 }
 
-RweaveOrgOptions <- function(options)
+RweaveTextileOptions <- function(options)
 {
 
     ## ATTENTION: Changes in this function have to be reflected in the
@@ -482,17 +482,17 @@ Stangle <- function(file, driver=Rtangle(),
     Sweave(file=file, driver=driver, ...)
 }
 
-RtangleOrg <-  function()
+RtangleTextile <-  function()
 {
-    list(setup = RtangleOrgSetup,
-         runcode = RtangleOrgRuncode,
-         writedoc = RtangleOrgWritedoc,
-         finish = RtangleOrgFinish,
-         checkopts = RweaveOrgOptions)
+    list(setup = RtangleTextileSetup,
+         runcode = RtangleTextileRuncode,
+         writedoc = RtangleTextileWritedoc,
+         finish = RtangleTextileFinish,
+         checkopts = RweaveTextileOptions)
 }
 
 
-RtangleOrgSetup <- function(file, syntax,
+RtangleTextileSetup <- function(file, syntax,
                          output=NULL, annotate=TRUE, split=FALSE,
                          prefix=TRUE, quiet=FALSE)
 {
@@ -524,7 +524,7 @@ RtangleOrgSetup <- function(file, syntax,
 }
 
 
-RtangleOrgRuncode <-  function(object, chunk, options)
+RtangleTextileRuncode <-  function(object, chunk, options)
 {
     if(!(options$engine %in% c("R", "S"))){
         return(object)
@@ -572,21 +572,21 @@ RtangleOrgRuncode <-  function(object, chunk, options)
     return(object)
 }
 
-RtangleOrgWritedoc <- function(object, chunk)
+RtangleTextileWritedoc <- function(object, chunk)
 {
     while(length(pos <- grep(object$syntax$docopt, chunk)))
     {
         opts <- sub(paste(".*", object$syntax$docopt, ".*", sep=""),
                     "\\1", chunk[pos[1L]])
         object$options <- utils:::SweaveParseOptions(opts, object$options,
-                                             RweaveOrgOptions)
+                                             RweaveTextileOptions)
         chunk[pos[1L]] <- sub(object$syntax$docopt, "", chunk[pos[1L]])
     }
     return(object)
 }
 
 
-RtangleOrgFinish <- function(object, error=FALSE)
+RtangleTextileFinish <- function(object, error=FALSE)
 {
     if(!is.null(object$output))
         close(object$output)
