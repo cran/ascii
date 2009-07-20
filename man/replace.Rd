@@ -1,8 +1,8 @@
 \name{replace}
 \alias{replace}
 \title{replace...}
-\usage{replace(backend=getOption("asciiBackend"), plateform=version$os, cygwin=FALSE,
-    i, f, d, e, O)
+\usage{replace(backend=getOption("asciiBackend"), plateform=.Platform$OS.type,
+    cygwin=FALSE, i, f, d, e, O)
 }
 \description{replace}
 \keyword{internal}

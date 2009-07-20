@@ -1,7 +1,7 @@
 Package: ascii
 Type: Package
 Title: Export R objects to several markup languages
-Version: 1.0
+Version: 1.1
 Date: 2009-07-20
 Author: David Hajage
 Maintainer: David Hajage <dhajage@gmail.com>
@@ -29,6 +29,6 @@ Collate: 'asciiAnova.r' 'asciiDataFrame.r' 'asciiDefault.r'
         'show.rest.r' 'show.t2t.r' 'show.textile.r' 'SweaveAscii.r'
         'tocharac.r' 'weaverAsciidoc.r' 'weaverOrg.r' 'weaverPandoc.r'
         'weaverReST.r' 'weaverT2t.r' 'weaverTextile.r'
-Packaged: 2011-02-26 13:56:06 UTC; david
+Packaged: 2011-03-02 12:42:33 UTC; david
 Repository: CRAN
-Date/Publication: 2011-02-27 16:29:05
+Date/Publication: 2011-03-03 06:53:45

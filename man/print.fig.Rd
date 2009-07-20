@@ -1,7 +1,7 @@
-\name{print.graph}
-\alias{print.graph}
+\name{print.fig}
+\alias{print.fig}
 \title{Print an graph object...}
-\usage{print.graph(x, backend=getOption("asciiBackend"), ...)
+\usage{print.fig(x, backend=getOption("asciiBackend"), ...)
 }
 \description{Print an graph object}
 \details{Print an graph object}

@@ -141,7 +141,7 @@ asciiOpts <- function(select = "all", .backends = NULL, .outputs = NULL, .extens
 ##' @param O O
 ##' @keywords internal
 ##' @author David Hajage
-replace <- function(backend = getOption("asciiBackend"), plateform = version$os, cygwin = FALSE, i, f = NULL, d = NULL, e = NULL, O = NULL) {
+replace <- function(backend = getOption("asciiBackend"), plateform = .Platform$OS.type, cygwin = FALSE, i, f = NULL, d = NULL, e = NULL, O = NULL) {
   if (is.null(f))
     f <- asciiOpts(".f")[[backend]]
   if (is.null(d))
@@ -311,6 +311,46 @@ print.paragraph <- function(x, ...) {
   cat("\n")
 }
 
+##' Create a verbatim paragraph
+##'
+##' \code{verbatim} can be used with \code{export} function to add a verbatim paragraph
+##' @param ... strings composing the paragraph (line by line)
+##' @return A verbatim object.
+##' @export
+##' @author David Hajage
+verbatim <- function(...) {
+  results <- c(...)
+  class(results) <- "verbatim"
+  results
+}
+
+##' Print a verbatim object
+##'
+##' Print a verbatim object
+##' @param x a verbatim object
+##' @param backend ascii backend
+##' @param ... not used
+##' @export
+##' @author David Hajage
+print.verbatim <- function(x, backend = getOption("asciiBackend"), ...) {
+  cat("\n")
+  if (backend == "asciidoc" | backend == "a2x")
+    cat("----\n")
+  if (backend == "t2t")
+    cat("```\n")
+  if (backend == "pandoc" | backend == "markdown2pdf")
+    cat("\n~~~~~~~{.R}\n")
+  
+  cat(x, sep = "\n", ...)
+  
+  if (backend == "asciidoc" | backend == "a2x")
+    cat("----\n\n")
+  if (backend == "t2t")
+    cat("```\n\n")
+  if (backend == "pandoc" | backend == "markdown2pdf")
+    cat("~~~~~~~~~~~\n\n")
+}
+
 ##' Insert an inline R result
 ##'
 ##' \code{sexpr} can be used with \code{export} function to insert an inline R results
@@ -381,17 +421,65 @@ print.out <- function(x, backend = getOption("asciiBackend"), ...) {
   }
 }
 
-##' Insert graph
+##' Insert figure
 ##'
 ##' \code{graph} can be used with \code{export} function to insert an R graphic.
-##' @param graph character string (a link to a graphic file)
-##' @return An out object
+##' @aliases graph
+##' @param file character string (
+##' @param graph a recordedplot, a lattice plot, or a ggplot (optional if the file already exists)
+##' @param format jpg, png or pdf (or guessed with the file name)
+##' @param ... additional arguments (passed to format options)
+##' @return A fig object
 ##' @export
 ##' @author David Hajage
-graph <- function(graph) {
-  class(graph) <- "graph"
-  graph
+fig <- function(file = NULL, graph = NULL, format = NULL, ...) {
+
+  if (is.null(file) & is.null(graph)) {
+    stop("Please provide a graph or a link to an existing graph.")
+  }
+
+  if (is.null(format)) {
+    if (!is.null(file)) {
+      ext <- tolower(sub("(^.+\\.)(.+$)", "\\2", file))
+      if (grepl(ext, "jpg|jpeg"))
+        format <- "jpg"
+      if (grepl(ext, "png"))
+        format <- "png"
+      if (grepl(ext, "pdf"))
+        format <- "pdf"
+    } else {
+      format <- "png"
+    }
+  }
+  
+  if (is.null(file)) {
+    file <- paste(tempfile("graph"), format, sep = ".")
+  }
+  
+  if (!is.null(graph)) {
+    if (format == "jpg") {
+      jpeg(file, ...)
+      print(graph)
+      dev.off()
+    }
+    if (format == "png") {
+      png(file, ...)
+      print(graph)
+      dev.off()
+    }
+    if (format == "pdf") {
+      pdf(file, ...)
+      print(graph)
+      dev.off()
+    }
+  }
+
+  results <- file
+  class(results) <- "fig"
+  results
 }
+
+graph <- fig
 
 ##' Print an graph object
 ##'
@@ -401,7 +489,7 @@ graph <- function(graph) {
 ##' @param ... not used
 ##' @export
 ##' @author David Hajage
-print.graph <- function(x, backend = getOption("asciiBackend"), ...) {
+print.fig <- function(x, backend = getOption("asciiBackend"), ...) {
   if (backend == "asciidoc" | backend == "a2x")
     results <- paste("image::", x, "[]", sep = "")
   if (backend == "t2t")
@@ -417,11 +505,16 @@ print.graph <- function(x, backend = getOption("asciiBackend"), ...) {
 ##' Produce a report from a list of R objects. This function can be
 ##' used directly, or through a \code{Report} proto object (see
 ##' examples). \code{Report$new()} creates a new object,
-##' \code{Report$export()} produce a report. Options can be specified
-##' with \code{Report$nameoftheoption <- option}. Special objects can
-##' be used to create sections (see \code{?section}) and paragraphs
-##' (see \code{?paragraph}), and to insert graph (see \code{?graph})
-##' or inline results (see \code{?sexpr}).
+##' \code{Report$export()} produce a report. Exportation options can
+##' be specified with \code{Report$nameoftheoption <- option} or
+##' directly in \code{Report$export(nameoftheoption = option)}.
+##'
+##' Special objects can be used to create sections (see
+##' \code{?section}), paragraphs (see \code{?paragraph}), verbatim
+##' environment (see \code{?verbatim} and to insert figures (see
+##' \code{?fig}) or inline results (see \code{?sexpr}). Helpers exist:
+##' \code{Report$addSection()}, \code{Report$addParagraph()},
+##' \code{Report$addVerbatim()}, \code{Report$addFig()}.
 ##'
 ##' It needs a working installation of asciidoc, a2x tool chain,
 ##' txt2tags, pandoc and/or markdown2pdf.
@@ -451,9 +544,9 @@ print.graph <- function(x, backend = getOption("asciiBackend"), ...) {
 ##'
 ##' r <- Report$new(author = "David Hajage", email = "dhajage at gmail dot com")
 ##' r$add(section("First section"))
-##' r$add(section("First subsection", 2))
+##' r$addSection("First subsection", 2)
 ##' r$add(paragraph("The data set has", sexpr(nrow(esoph)), " lines. See yourself:"), esoph)
-##' r$add(section("Second subsection: age and alc group", 2))
+##' r$addSection("Second subsection: age and alc group", 2)
 ##' tab <- with(esoph, table(alcgp, agegp))
 ##' r$add(ascii(tab), ascii(summary(tab), format = "nice"))
 ##' r$export()
@@ -468,9 +561,7 @@ print.graph <- function(x, backend = getOption("asciiBackend"), ...) {
 ##' r$format <- "odt"
 ##' r$export()
 ##'
-##' r$backend <- "markdown2pdf"
-##' r$format <- "pdf"
-##' r$export()
+##' r$export(backend = "markdown2pdf", format = "pdf")
 ##' }
 export <- function(..., list = NULL, file = NULL, format = NULL, open = TRUE, backend = getOption("asciiBackend"), encoding = NULL, options = NULL, cygwin = FALSE, title = NULL, author = NULL, email = NULL, date = NULL) {
   
@@ -533,9 +624,10 @@ export <- function(..., list = NULL, file = NULL, format = NULL, open = TRUE, ba
         }
       }
       if ("ascii" %in% class(arg)) {
+        cat("\n")
         print(arg)
         cat("\n")
-      } else if ("out" %in% class(arg) | "section" %in% class(arg) | "paragraph" %in% class(arg) | "graph" %in% class(arg)) {
+      } else if ("out" %in% class(arg) | "section" %in% class(arg) | "paragraph" %in% class(arg) | "verbatim" %in% class(arg) | "fig" %in% class(arg)) {
         print(arg, backend = backend)
       } else {
         print(out(arg, "verbatim"), backend = backend)
@@ -563,6 +655,22 @@ Report <- proto(expr = {
     .$objects <- c(.$objects, obj)
   }
 
+  addSection <- function(., x, caption.level = 1) {
+    .$objects <- c(.$objects, list(section(x, caption.level)))
+  }
+
+  addParagraphs <- function(., ..., new = TRUE) {
+    .$objects <- c(.$objects, list(paragraph(..., new = new)))
+  }
+
+  addVerbatim <- function(., ...) {
+    .$objects <- c(.$objects, list(verbatim(...)))
+  }
+
+  addFig <- function(., file = NULL, graph = NULL, format = NULL, ...) {
+    .$objects <- c(.$objects, list(fig(file, graph, format, ...)))
+  }
+
   show.Report <- function(., help = FALSE) {
     cat("Report object:\n\n")
     cat("  title:   ", ifelse(is.null(.$title), "None", .$title), "\n")
@@ -585,8 +693,8 @@ Report <- proto(expr = {
     }
   }
 
-  export <- function(.) {
-    .super$export(list = .$objects, file = .$file, format = .$format, open = .$open, backend = .$backend, encoding = .$encoding, options = .$options, cygwin = .$cygwin, title = .$title, author = .$author, email = .$email, date = .$date)
+  export <- function(., list = .$objects, file = .$file, format = .$format, open = .$open, backend = .$backend, encoding = .$encoding, options = .$options, cygwin = .$cygwin, title = .$title, author = .$author, email = .$email, date = .$date) {
+    .super$export(list = list, file = file, format = format, open = open, backend = backend, encoding = encoding, options = options, cygwin = cygwin, title = title, author = author, email = email, date = date)
   }
 })
 
