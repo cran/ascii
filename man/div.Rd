@@ -1,11 +1,16 @@
 \name{div}
 \alias{div}
-\title{div...}
-\usage{div(x, n=2)
+\title{div}
+\usage{
+div(x, n = 2)
 }
-\description{div}
+\arguments{
+  \item{x}{x}
+
+  \item{n}{n}
+}
+\description{
+div
+}
 \keyword{internal}
-\arguments{\item{x}{x}
-\item{n}{n}
-}
 

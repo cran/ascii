@@ -1,12 +1,18 @@
 \name{align.table}
 \alias{align.table}
-\title{align...}
-\usage{align.table(x, align, space=1)
+\title{align.table}
+\usage{
+align.table(x, align, space = 1)
 }
-\description{align.table}
+\arguments{
+  \item{x}{x}
+
+  \item{align}{align}
+
+  \item{space}{space}
+}
+\description{
+align.table
+}
 \keyword{internal}
-\arguments{\item{x}{x}
-\item{align}{align}
-\item{space}{space}
-}
 

@@ -1,10 +1,14 @@
 \name{safe.as.character}
 \alias{safe.as.character}
-\title{safe...}
-\usage{safe.as.character(x)
+\title{safe.as.character}
+\usage{
+safe.as.character(x)
 }
-\description{safe.as.character}
+\arguments{
+  \item{x}{x}
+}
+\description{
+safe.as.character
+}
 \keyword{internal}
-\arguments{\item{x}{x}
-}
 

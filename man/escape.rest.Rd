@@ -1,10 +1,14 @@
 \name{escape.rest}
 \alias{escape.rest}
-\title{escape...}
-\usage{escape.rest(x)
+\title{escape.rest}
+\usage{
+escape.rest(x)
 }
-\description{escape.rest}
+\arguments{
+  \item{x}{x}
+}
+\description{
+escape.rest
+}
 \keyword{internal}
-\arguments{\item{x}{x}
-}
 

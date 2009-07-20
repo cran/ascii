@@ -1,14 +1,22 @@
 \name{show.asciidoc.list}
 \alias{show.asciidoc.list}
-\title{show...}
-\usage{show.asciidoc.list(x, caption=NULL, caption.level=NULL, list.type="bullet", ...)
+\title{show.asciidoc.list}
+\usage{
+show.asciidoc.list(x, caption = NULL, caption.level = NULL, list.type = "bullet", ...)
 }
-\description{show.asciidoc.list}
+\arguments{
+  \item{x}{x}
+
+  \item{caption}{caption}
+
+  \item{caption.level}{caption.level}
+
+  \item{list.type}{list.type}
+
+  \item{...}{...}
+}
+\description{
+show.asciidoc.list
+}
 \keyword{internal}
-\arguments{\item{x}{x}
-\item{caption}{caption}
-\item{caption.level}{caption.level}
-\item{list.type}{list.type}
-\item{...}{...}
-}
 

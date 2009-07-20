@@ -1,12 +1,18 @@
 \name{groups}
 \alias{groups}
-\title{groups...}
-\usage{groups(groups, n.groups=NULL, n)
+\title{groups}
+\usage{
+groups(groups, n.groups = NULL, n)
 }
-\description{groups}
+\arguments{
+  \item{groups}{groups}
+
+  \item{n.groups}{n.groups}
+
+  \item{n}{}
+}
+\description{
+groups
+}
 \keyword{internal}
-\arguments{\item{groups}{groups}
-\item{n.groups}{n.groups}
-\item{n}{}
-}
 

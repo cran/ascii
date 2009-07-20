@@ -1,10 +1,14 @@
 \name{interleave}
 \alias{interleave}
-\title{interleave...}
-\usage{interleave(...)
+\title{interleave}
+\usage{
+interleave(...)
 }
-\description{interleave}
+\arguments{
+  \item{...}{...}
+}
+\description{
+interleave
+}
 \keyword{internal}
-\arguments{\item{...}{...}
-}
 

@@ -1,10 +1,14 @@
 \name{escape.asciidoc}
 \alias{escape.asciidoc}
-\title{escape...}
-\usage{escape.asciidoc(x)
+\title{escape.asciidoc}
+\usage{
+escape.asciidoc(x)
 }
-\description{escape.asciidoc}
+\arguments{
+  \item{x}{x}
+}
+\description{
+escape.asciidoc
+}
 \keyword{internal}
-\arguments{\item{x}{x}
-}
 

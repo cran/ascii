@@ -1,10 +1,14 @@
 \name{trim}
 \alias{trim}
-\title{trim...}
-\usage{trim(x)
+\title{trim}
+\usage{
+trim(x)
 }
-\description{trim}
+\arguments{
+  \item{x}{x}
+}
+\description{
+trim
+}
 \keyword{internal}
-\arguments{\item{x}{x}
-}
 

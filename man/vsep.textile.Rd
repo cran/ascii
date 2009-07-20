@@ -1,12 +1,18 @@
 \name{vsep.textile}
 \alias{vsep.textile}
-\title{vsep...}
-\usage{vsep.textile(align=NULL, valign=NULL, style=NULL)
+\title{vsep.textile}
+\usage{
+vsep.textile(align = NULL, valign = NULL, style = NULL)
 }
-\description{vsep.textile}
+\arguments{
+  \item{align}{align}
+
+  \item{valign}{valign}
+
+  \item{style}{style}
+}
+\description{
+vsep.textile
+}
 \keyword{internal}
-\arguments{\item{align}{align}
-\item{valign}{valign}
-\item{style}{style}
-}
 
