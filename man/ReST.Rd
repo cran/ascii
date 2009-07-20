@@ -1,9 +1,9 @@
-\name{Sphinx}
-\alias{Sphinx}
-\title{Sweave wrapper for sphinx}
-\description{Like \code{Sweave}, but use \code{RweaveSphinx} driver as default value.}
+\name{ReST}
+\alias{ReST}
+\title{Sweave wrapper for reStructuredText}
+\description{Like \code{Sweave}, but use \code{RweaveReST} driver as default value.}
 \usage{
-Sphinx(file, driver = RweaveSphinx, syntax = SweaveSyntaxNoweb, ...)
+ReST(file, driver = RweaveReST, syntax = SweaveSyntaxNoweb, ...)
 }
 \arguments{
   \item{file}{Name of Sweave source file.}

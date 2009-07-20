@@ -1,13 +1,13 @@
-RweaveSphinx <- function()
+RweaveReST <- function()
 {
-    list(setup = RweaveSphinxSetup,
-         runcode = RweaveSphinxRuncode,
-         writedoc = RweaveSphinxWritedoc,
-         finish = RweaveSphinxFinish,
-         checkopts = RweaveSphinxOptions)
+    list(setup = RweaveReSTSetup,
+         runcode = RweaveReSTRuncode,
+         writedoc = RweaveReSTWritedoc,
+         finish = RweaveReSTFinish,
+         checkopts = RweaveReSTOptions)
 }
 
-RweaveSphinxSetup <-
+RweaveReSTSetup <-
     function(file, syntax, output=NULL, quiet=FALSE, debug=FALSE,
              stylepath, ...)
 {
@@ -23,7 +23,7 @@ RweaveSphinxSetup <-
 
     options <- list(prefix=TRUE, prefix.string=prefix.string,
                     engine="R", print=FALSE, eval=TRUE,
-                    fig=FALSE, ext = "*", png=FALSE, jpg=TRUE, pdf=TRUE, eps=FALSE,
+                    fig=FALSE, ext = "jpg", png=FALSE, jpg=TRUE, pdf=TRUE, eps=FALSE,
                     width=6, height=6, res=100, term=TRUE,
                     echo=TRUE, keep.source=FALSE, results="verbatim",
                     split=FALSE, strip.white="true", include=TRUE,
@@ -33,7 +33,7 @@ RweaveSphinxSetup <-
     options[names(dots)] <- dots
 
     ## to be on the safe side: see if defaults pass the check
-    options <- RweaveSphinxOptions(options)
+    options <- RweaveReSTOptions(options)
 
     list(output=output, 
          debug=debug, quiet=quiet, syntax = syntax,
@@ -41,12 +41,12 @@ RweaveSphinxSetup <-
          srcfile=srcfile(file))
 }
 
-makeRweaveSphinxCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
+makeRweaveReSTCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 {
     ## Return a function suitable as the 'runcode' element
     ## of an Sweave driver.  evalFunc will be used for the
     ## actual evaluation of chunk code.
-    RweaveSphinxRuncode <- function(object, chunk, options)
+    RweaveReSTRuncode <- function(object, chunk, options)
       {
           if(!(options$engine %in% c("R", "S"))){
               return(object)
@@ -245,7 +245,7 @@ makeRweaveSphinxCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
             }
 
           if(openSinput){
-              cat("\n", file=chunkout, append=TRUE)
+              cat("", file=chunkout, append=TRUE)
               linesout[thisline + 1L:2L] <- srcline
               thisline <- thisline + 2L
           }
@@ -315,12 +315,12 @@ makeRweaveSphinxCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
           object$linesout <- c(object$linesout, linesout)
           return(object)
       }
-    RweaveSphinxRuncode
+    RweaveReSTRuncode
 }
 
-RweaveSphinxRuncode <- makeRweaveSphinxCodeRunner()
+RweaveReSTRuncode <- makeRweaveReSTCodeRunner()
 
-RweaveSphinxWritedoc <- function(object, chunk)
+RweaveReSTWritedoc <- function(object, chunk)
 {
     linesout <- attr(chunk, "srclines")
 
@@ -345,7 +345,7 @@ RweaveSphinxWritedoc <- function(object, chunk)
         opts <- sub(paste(".*", object$syntax$docopt, ".*", sep=""),
                     "\\1", chunk[pos[1L]])
         object$options <- utils:::SweaveParseOptions(opts, object$options,
-                                             RweaveSphinxOptions)
+                                             RweaveReSTOptions)
             chunk[pos[1L]] <- sub(object$syntax$docopt, "", chunk[pos[1L]])
     }
 
@@ -355,13 +355,13 @@ RweaveSphinxWritedoc <- function(object, chunk)
     return(object)
 }
 
-RweaveSphinxFinish <- function(object, error=FALSE)
+RweaveReSTFinish <- function(object, error=FALSE)
 {
     outputname <- summary(object$output)$description
     inputname <- object$srcfile$filename
     if(!object$quiet && !error)
         cat("\n",
-            gettextf("You can now run sphinx on '%s'", outputname),
+            gettextf("You can now run docutils, sphinx... on '%s'", outputname),
             "\n", sep = "")
     close(object$output)
     if(length(object$chunkout))
@@ -386,7 +386,7 @@ RweaveSphinxFinish <- function(object, error=FALSE)
     invisible(outputname)
 }
 
-RweaveSphinxOptions <- function(options)
+RweaveReSTOptions <- function(options)
 {
 
     ## ATTENTION: Changes in this function have to be reflected in the
@@ -485,17 +485,17 @@ Stangle <- function(file, driver=Rtangle(),
     Sweave(file=file, driver=driver, ...)
 }
 
-RtangleSphinx <-  function()
+RtangleReST <-  function()
 {
-    list(setup = RtangleSphinxSetup,
-         runcode = RtangleSphinxRuncode,
-         writedoc = RtangleSphinxWritedoc,
-         finish = RtangleSphinxFinish,
-         checkopts = RweaveSphinxOptions)
+    list(setup = RtangleReSTSetup,
+         runcode = RtangleReSTRuncode,
+         writedoc = RtangleReSTWritedoc,
+         finish = RtangleReSTFinish,
+         checkopts = RweaveReSTOptions)
 }
 
 
-RtangleSphinxSetup <- function(file, syntax,
+RtangleReSTSetup <- function(file, syntax,
                          output=NULL, annotate=TRUE, split=FALSE,
                          prefix=TRUE, quiet=FALSE)
 {
@@ -527,7 +527,7 @@ RtangleSphinxSetup <- function(file, syntax,
 }
 
 
-RtangleSphinxRuncode <-  function(object, chunk, options)
+RtangleReSTRuncode <-  function(object, chunk, options)
 {
     if(!(options$engine %in% c("R", "S"))){
         return(object)
@@ -575,21 +575,21 @@ RtangleSphinxRuncode <-  function(object, chunk, options)
     return(object)
 }
 
-RtangleSphinxWritedoc <- function(object, chunk)
+RtangleReSTWritedoc <- function(object, chunk)
 {
     while(length(pos <- grep(object$syntax$docopt, chunk)))
     {
         opts <- sub(paste(".*", object$syntax$docopt, ".*", sep=""),
                     "\\1", chunk[pos[1L]])
         object$options <- utils:::SweaveParseOptions(opts, object$options,
-                                             RweaveSphinxOptions)
+                                             RweaveReSTOptions)
         chunk[pos[1L]] <- sub(object$syntax$docopt, "", chunk[pos[1L]])
     }
     return(object)
 }
 
 
-RtangleSphinxFinish <- function(object, error=FALSE)
+RtangleReSTFinish <- function(object, error=FALSE)
 {
     if(!is.null(object$output))
         close(object$output)

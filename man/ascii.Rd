@@ -6,10 +6,12 @@
 \alias{ascii.cast_df}
 \alias{ascii.character}
 \alias{ascii.coxph}
+\alias{ascii.CrossTable}
 \alias{ascii.data.frame}
 \alias{ascii.default}
 \alias{ascii.density}
 \alias{ascii.factor}
+\alias{ascii.freqtable}
 \alias{ascii.glm}
 \alias{ascii.describe.single}
 \alias{ascii.describe}
@@ -19,6 +21,7 @@
 \alias{ascii.list}
 \alias{ascii.lm}
 \alias{ascii.matrix}
+\alias{ascii.meanscomp}
 \alias{ascii.packageDescription}
 \alias{ascii.numeric}
 \alias{ascii.prcomp}
@@ -39,7 +42,7 @@
 \title{Export R objects to several markup languages}
 \description{
   Function converting an R object to an \code{ascii} object, which can
-  then be printed with asciidoc, txt2tags, sphinx or org syntax.
+  then be printed with asciidoc, txt2tags, reStructuredText or org syntax.
 }
 \usage{
   \method{ascii}{default}(x, 
@@ -48,17 +51,25 @@
     format = "f", digits = 2, decimal.mark = ".", na.print = "", 
     caption = "", caption.level = "", width = 0, frame = "",
     grid = "", valign = "", header = TRUE, footer = FALSE,
-    align = "", col.width = 1, style = "", cgroup = NULL,
-    n.cgroup = NULL, calign = "", cvalign = "", cstyle = "",
-    rgroup = NULL, n.rgroup = NULL, ralign = "", rvalign = "",
-    rstyle = "", \dots)
+    align = "", col.width = 1, style = "", tgroup = NULL,
+    n.tgroup = NULL, talign = "", tvalign = "", tstyle = "",
+    bgroup = NULL, n.bgroup = NULL, balign = "", bvalign = "",
+    bstyle = "", lgroup = NULL, n.lgroup = NULL, lalign = "",
+    lvalign = "", lstyle = "", rgroup = NULL, n.rgroup = NULL,
+    ralign = "", rvalign = "", rstyle = "", \dots)
   \method{ascii}{ftable}(x, digits = getOption("digits"), header = TRUE, \dots)
-  \method{ascii}{describe}(x, condense = TRUE, \dots)
   \method{ascii}{summary.table}(x, caption = "", caption.level = "", list.type = "bullet", \dots)
   \method{ascii}{list}(x, caption = "", caption.level = "", list.type = "bullet", \dots)
   \method{ascii}{sessionInfo}(x, locale = TRUE, ...)
   \method{ascii}{smooth.spline}(x, caption = "", caption.level = "", list.type = "bullet", \dots)
-}
+  \method{ascii}{describe}(x, condense = TRUE, \dots)
+  \method{ascii}{meanscomp}(x, caption = "", caption.level = "s",
+    include.rownames = TRUE, include.colnames = TRUE, \dots)
+  \method{ascii}{CrossTable}(x, \dots)
+  \method{ascii}{freqtable}(x, digits = c(0, 4), format = "fg", na.print = "",
+    include.rownames = TRUE, include.colnames = TRUE, caption = x$label,
+    caption.level = "s", ...)
+ }
 \arguments{
   \item{x}{An R object of class found among \code{methods(ascii)}.}
   \item{include.rownames}{logical. If \code{TRUE} the rows names are printed. Default value depends of class of \code{x}.}
@@ -124,27 +135,52 @@
                \code{"a"} (cells can contain any of the AsciiDoc elements that are allowed inside document), 
                \code{"l"} (literal), \code{"v"} (verse; all line breaks are retained). 
                Default is \code{""}.}
-  \item{cgroup}{Character vector defining major column headings.
+  \item{tgroup}{Character vector defining major top column headings.
                 The default is to have none (\code{NULL}).}
-  \item{n.cgroup}{A numeric vector containing the number of columns for which each
-                  element in cgroup is a heading.  For example, specify
-                  \code{cgroup=c("Major 1","Major 2")}, \code{n.cgroup=c(3,3)} if \code{"Major
+  \item{n.tgroup}{A numeric vector containing the number of columns for which each
+                  element in tgroup is a heading.  For example, specify
+                  \code{tgroup=c("Major 1","Major 2")}, \code{n.tgroup=c(3,3)} if \code{"Major
                   1"} is to span columns 1-3 and \code{"Major 2"} is to span columns
                   4-6. Row names count in the column numbers if
                   \code{include.rownames = TRUE}.}
-  \item{calign}{Character vector of length one defining alignment of major column headings.}
-  \item{cvalign}{Character vector of length one defining vertical alignment of major column headings.}
-  \item{cstyle}{Character vector of length one indicating the style of
-                major column headings}
-  \item{rgroup}{Character vector defining major row headings.
+  \item{talign}{Character vector of length one defining alignment of
+               major top column headings.}
+  \item{tvalign}{Character vector of length one defining vertical
+               alignment of major top column headings.}
+  \item{tstyle}{Character vector of length one indicating the style of
+                major top column headings}
+  \item{bgroup}{Character vector defining major bottom column headings.
+                The default is to have none (\code{NULL}).}
+  \item{n.bgroup}{A numeric vector containing the number of columns for which each
+                  element in bgroup is a heading.}
+  \item{balign}{Character vector of length one defining alignment of
+               major bottom column headings.}
+  \item{bvalign}{Character vector of length one defining vertical
+               alignment of major bottom column headings.}
+  \item{bstyle}{Character vector of length one indicating the style of
+                major bottom column headings}
+  \item{lgroup}{Character vector defining major left row headings.
+                The default is to have none (\code{NULL}).}
+  \item{n.lgroup}{A numeric vector containing the number of rows for which each
+                  element in lgroup is a heading. Column names count in the row numbers if
+                  \code{include.colnames = TRUE}.}
+  \item{lalign}{Character vector of length one defining alignment of
+               major left row headings.}
+  \item{lvalign}{Character vector of length one defining vertical
+               alignment of major left row headings.}
+  \item{lstyle}{Character vector of length one indicating the style of
+                major left row headings}
+  \item{rgroup}{Character vector defining major right row headings.
                 The default is to have none (\code{NULL}).}
   \item{n.rgroup}{A numeric vector containing the number of rows for which each
                   element in rgroup is a heading. Column names count in the row numbers if
                   \code{include.colnames = TRUE}.}
-  \item{ralign}{Character vector of length one defining alignment of major row headings.}
-  \item{rvalign}{Character vector of length one defining vertical alignment of major row headings.}
+  \item{ralign}{Character vector of length one defining alignment of
+               major right row headings.}
+  \item{rvalign}{Character vector of length one defining vertical
+               alignment of major right row headings.}
   \item{rstyle}{Character vector of length one indicating the style of
-                major row headings}
+                major right row headings}
   \item{list.type}{Character vector of length one indicating the list
                    type (\code{"bullet"}, \code{"number"}, \code{"label"} or
                    \code{"none"}). If \code{"label"}, \code{names(list)} is
@@ -178,7 +214,7 @@ ascii(esoph[1:10,])
 tab <- table(esoph$agegp, esoph$alcgp)
 ascii(tab)
 print(ascii(tab), type = "t2t")
-print(ascii(tab), type = "sphinx")
+print(ascii(tab), type = "rest")
 print(ascii(tab), type = "org")
 ascii(summary(tab))
 }

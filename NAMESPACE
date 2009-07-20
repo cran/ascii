@@ -1,4 +1,4 @@
-export("ascii", "print.ascii", "RweaveAsciidoc", "RweaveT2t", "RweaveSphinx", "RweaveOrg", "Asciidoc", "T2t", "Sphinx", "Org")
+export("ascii", "print.ascii", "RweaveAsciidoc", "RweaveT2t", "RweaveReST", "RweaveOrg", "Asciidoc", "T2t", "ReST", "Org")
 import(utils)
 
 S3method("ascii", "anova")
@@ -7,6 +7,7 @@ S3method("ascii", "aovlist")
 S3method("ascii", "cast_df")
 S3method("ascii", "character")
 S3method("ascii", "coxph")
+S3method("ascii", "CrossTable")
 S3method("ascii", "data.frame")
 S3method("ascii", "default")
 S3method("ascii", "density")
