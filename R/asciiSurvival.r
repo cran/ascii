@@ -43,6 +43,114 @@ ascii.survdiff <- function (x, include.rownames = TRUE, include.colnames = TRUE,
   return(obj)
 }
 
+ascii.survfit <- function (x, scale = 1, print.rmean = getOption("survfit.print.rmean"), rmean = getOption("survfit.rmean"), include.rownames = TRUE, include.colnames = TRUE, header = TRUE, ...) {
+    omit <- x$na.action
+    na <- NULL
+    if (length(omit))
+         na <- ascii(list(naprint(omit)), list.type = "none")
+    if (!missing(print.rmean) && is.logical(print.rmean) && missing(rmean)) {
+        if (print.rmean)
+            rmean <- "common"
+        else rmean <- "none"
+    }
+    if (is.null(rmean)) {
+        if (is.logical(print.rmean)) {
+            if (print.rmean)
+                rmean <- "common"
+            else rmean <- "none"
+        }
+        else rmean <- "none"
+    }
+    if (is.numeric(rmean)) {
+        if (is.null(x$start.time)) {
+            if (rmean < min(x$time))
+                stop("Truncation point for the mean is < smallest survival")
+        }
+        else if (rmean < x$start.time)
+            stop("Truncation point for the mean is < smallest survival")
+    }
+    else {
+        rmean <- match.arg(rmean, c("none", "common", "individual"))
+        if (length(rmean) == 0)
+            stop("Invalid value for rmean option")
+    }
+    temp <- survival:::survmean(x, scale = scale, rmean)
+    mat <- ascii(temp$matrix, include.rownames = include.rownames, include.colnames = include.colnames, header = header, ...)
+
+    restrm <- NULL
+    if (rmean != "none") {
+        if (rmean == "individual")
+            restrm <- ascii(list("* restricted mean with variable upper limit"))
+        else restrm <- ascii(list(paste("* restricted mean with upper limit = ",
+            format(temp$end.time[1]))))
+    }
+    obj <- asciiMixed$new(na, mat, restrm)
+    class(obj) <- c("ascii", "proto", "environment")
+    obj
+}
+
+ascii.summary.survfit <- function (x, include.colnames = TRUE, header = TRUE, digits = c(0, 0, 0, 3, 3, 3, 3), ...) {
+  omit <- x$na.action
+  na <- NULL
+  if (length(omit)) 
+    na <- ascii(list(naprint(omit)), list.type = "none")
+  if (x$type == "right" || is.null(x$n.entered)) {
+    mat <- cbind(x$time, x$n.risk, x$n.event, x$surv)
+    cnames <- c("time", "n.risk", "n.event")
+  } else if (x$type == "counting") {
+    mat <- cbind(x$time, x$n.risk, x$n.event, x$n.enter, 
+                 x$n.censor, x$surv)
+    cnames <- c("time", "n.risk", "n.event", "entered", "censored")
+  }
+  if (is.matrix(x$surv)) {
+    ncurve <- ncol(x$surv)
+  } else ncurve <- 1
+  if (ncurve == 1) {
+    cnames <- c(cnames, "survival")
+    if (!is.null(x$std.err)) {
+      if (is.null(x$lower)) {
+        mat <- cbind(mat, x$std.err)
+        cnames <- c(cnames, "std.err")
+      } else {
+        mat <- cbind(mat, x$std.err, x$lower, x$upper)
+        cnames <- c(cnames, "std.err", paste("lower ", 
+                                             x$conf.int * 100, "% CI", sep = ""), paste("upper ", 
+                                                                                        x$conf.int * 100, "% CI", sep = ""))
+      }
+    }
+  } else cnames <- c(cnames, paste("survival", seq(ncurve), sep = ""))
+  if (!is.null(x$start.time)) {
+    mat.keep <- mat[, 1] >= x$start.time
+    mat <- mat[mat.keep, , drop = FALSE]
+    if (is.null(dim(mat))) 
+      stop(paste("No information available using start.time =", 
+                 x$start.time, "."))
+  }
+  if (!is.matrix(mat)) 
+    mat <- matrix(mat, nrow = 1)
+  if (!is.null(mat)) {
+    dimnames(mat) <- list(NULL, cnames)
+    if (is.null(x$strata)) {
+      res <- ascii(mat, include.colnames = include.colnames, header = header, digits = digits, ...)
+    } else {
+      strata <- x$strata
+      if (!is.null(x$start.time)) 
+        strata <- strata[mat.keep]
+      res <- NULL
+      for (i in levels(strata)) {
+        who <- (strata == i)
+        res <- asciiMixed$new(res, ascii(mat[who, ], caption = i, include.colnames = include.colnames, header = header, digits = digits, ...))
+        class(res) <- c("ascii", "proto", "environment")
+      }
+    }
+  } else stop("There are no events to print.  Please use the option ", 
+            "censored=TRUE with the summary function to see the censored ", 
+            "observations.")
+  obj <- asciiMixed$new(na, res)
+  class(obj) <- c("ascii", "proto", "environment")
+  return(obj)
+}
+
 # from xtable package
 ascii.coxph <- function (x, include.rownames = TRUE, include.colnames = TRUE, rownames = NULL, colnames = NULL, format = "f", digits = 2, decimal.mark = ".", na.print = "", caption = "", caption.level = "", width = 0, frame = "", grid = "", valign = "", header = TRUE, footer = FALSE, align = "", col.width = 1, style = "", tgroup = NULL, n.tgroup = NULL, talign = "", tvalign = "", tstyle = "", bgroup = NULL, n.bgroup = NULL, balign = "", bvalign = "", bstyle = "", lgroup = NULL, n.lgroup = NULL, lalign = "", lvalign = "", lstyle = "", rgroup = NULL, n.rgroup = NULL, ralign = "", rvalign = "", rstyle = "", ...){
 
