@@ -1,7 +1,7 @@
 Package: ascii
 Type: Package
 Title: Export R objects to several markup languages
-Version: 0.4
+Version: 0.4-1
 Date: 2009-07-20
 Author: David Hajage
 Maintainer: David Hajage <dhajage@gmail.com>
@@ -13,6 +13,6 @@ Imports: proto
 Depends: R (>= 2.7), proto
 Suggests: survival, Hmisc, xtable, R2HTML
 LazyLoad: false
-Packaged: 2009-11-24 19:11:38 UTC; david
+Packaged: 2009-11-25 19:54:03 UTC; david
 Repository: CRAN
-Date/Publication: 2009-11-25 08:29:39
+Date/Publication: 2009-11-26 08:12:27
