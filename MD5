@@ -1,7 +1,7 @@
-005c21b9f24cdbc5b63f71e3430b6855 *DESCRIPTION
-d5cd49bf83d2c82712efacac8875f05c *NAMESPACE
+eb3f0189f772f0b446a97d37d81df5af *DESCRIPTION
+0d24738c03b0e409120a7cea36ba5d55 *NAMESPACE
 6375020d4f6c59e0b11d77691ae2a606 *NEWS
-c4c08c566a742d75c7f100225aff3221 *R/RweaveAscii.r
+709abdabf488279fe6ac7d3dd1274e64 *R/RweaveAscii.r
 290e41ce5bca3343aa178d5fa7b063d3 *R/SweaveAscii.r
 1de96e9aeb63563f03ee455a310c8fd1 *R/asciiAnova.r
 44b63391d28c8b21a4008ff3ff598b25 *R/asciiDataFrame.r
@@ -28,8 +28,8 @@ cc3b112d4039f7393725dfe946039f1f *R/cbind.r
 7bc52075b543809a9216636349fba79b *R/export.r
 096bfc063acec70e938dbc772723b280 *R/generic.r
 50df98b963d5cdb008f08e8baa88620f *R/groups.r
-31a342f8524d529c157c1a5d1a0ef99d *R/interleave.r
-fdbff1dbb4c2d36bf018f48e0df2586b *R/paste.matrix.r
+74b1389985cdd3575cef538fb76afc89 *R/interleave.r
+681b8e1ab0d58fd518e687113b5fdb78 *R/paste.matrix.r
 a244c53bfeecc9b0d4b415a6a4620ad2 *R/plim.r
 a9e347eeb50a02f0f864abf5aee6a92b *R/print.character.matrix.r
 6ed01d955b137b847fbc091e8c88a774 *R/print.r
@@ -40,11 +40,11 @@ d102771f8bc88b7107787453393d6376 *R/show.r
 87413f8bd852ce63f65e507708b03927 *R/show.rest.r
 c47b6d75bd6bab51d0f65219cdd1eb8f *R/show.t2t.r
 2791a398436bbe8f69731bf4e84bb5a4 *R/show.textile.r
-3fc88069b964dde6513212fec81ad508 *R/tocharac.r
+6339f92c27570ebe0c2ac1e502c96667 *R/tocharac.r
 86d237a9389b6142dc64e7b3b9995da0 *R/weaverAscii.r
 273508e7f583a116ba0ace7788b24a58 *R/zzz.r
-6963a4441a68f9fb7f1eab62d9fb444d *man/RtangleAscii.Rd
-eeb9638b3b7cbd31336aeea23af3233a *man/RtangleAsciiWritedoc.Rd
+ea23865cb9f95ead5ed4e743a394bb3f *man/RtangleAscii.Rd
+4204076c0c684494150b9207f8cee3b5 *man/RtangleAsciiWritedoc.Rd
 a0b041eb38996bea5f3746fbde4a5614 *man/RweaveAsciiFinish.Rd
 038aefbed9c8ae847baafb496c754704 *man/RweaveAsciiOptions.Rd
 9b7ce4964a2169220d48d96d35805532 *man/RweaveAsciiSetup.Rd
