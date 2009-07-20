@@ -1,12 +1,21 @@
-2009/xx/xx
+2009/04/20
+~~~~~~~~~~
+
+* main functions rewritten: it should be easier to add new markup
+* add dimnames in +ascii.table()+
+* +style+, +align+ and +valign+ accept matrix
+* +t/b/l/rgroup+ accept several groups (in a list)
+* +header+ and +footer+ accept an integer (number of lines for the header)
+* +t/b/l/rstyle+ can be "h" (for "header")
+* +caption+, +caption.level+, +align+, +valign+, +style+, +frame+, +grid+ have +NULL+ default value
+* +'nice'+ format: 0 digits if integer
+
+2010/02/05
 ~~~~~~~~~~
 
 * textile support
 * fix a bug in asciidoc labeled list, when labels begin with a number
 * fix bug with RweaveDrivers when split = TRUE
-
-
-
 
 2009/11/28
 ~~~~~~~~~~
