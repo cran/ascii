@@ -9,7 +9,7 @@
 \value{A fig object}
 \author{David Hajage}
 \arguments{\item{file}{character string (}
-\item{graph}{a recordedplot, a lattice plot, or a ggplot (optional if the file already exists)}
+\item{graph}{a recordedplot, a lattice plot, a ggplot, or an expression producing a plot (optional if the file already exists)}
 \item{format}{jpg, png or pdf (or guessed with the file name)}
 \item{...}{additional arguments (passed to format options)}
 }
