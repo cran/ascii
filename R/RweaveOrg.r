@@ -1,3 +1,39 @@
+
+
+##' A driver to parse org noweb files with Sweave tool
+##' This driver parses org files containing R code and replace pieces of code
+##' with their output.
+##' 
+##' 
+##' @aliases RweaveOrg RtangleOrg RweaveOrgOptions RweaveOrgFinish
+##'   RweaveOrgWritedoc RweaveOrgSetup RweaveOrgRuncode cacheSweaveOrg
+##'   weaverOrg
+##' @return None value is returned. From a .Rnw noweb file, the corresponding
+##'   .org is produced (as eventuals files for graphs).
+##' @note In order to work properly, noweb codes have to be located at the
+##'   beginning of a line (no indentation).
+##' 
+##' Compare with RweaveLatex driver, RweaveOrg provides four new options :
+##'   \code{res} for the resolution of jpg or png figure (if produced),
+##'   \code{ext} (extension) for the format of figure that will be inserted,
+##'   and \code{png} and \code{jpg} (from \code{R2HTML} package) to produce png
+##'   and jpg figures.
+##' 
+##' In addition, \code{cache} option from \code{cacheSweave} or \code{weaver}
+##'   package is also available with \code{cacheSweaveOrg} driver and
+##'   \code{weaverOrg} driver.
+##' 
+##' A wrapper for \code{Sweave} can be used, named \code{Org}.
+##' @author David Hajage \email{dhajage@@gmail.com}
+##' @seealso \code{\link[utils]{Sweave}}, \code{\link[ascii]{Org}}
+##' @keywords IO file
+##' @export
+##' @examples
+##'   \dontrun{
+##' library(ascii)
+##' Org("file.Rnw")
+##'   }
+##' 
 RweaveOrg <- function()
 {
     list(setup = RweaveOrgSetup,
@@ -6,9 +42,17 @@ RweaveOrg <- function()
          finish = RweaveOrgFinish,
          checkopts = RweaveOrgOptions)
 }
-
-RweaveOrgSetup <-
-    function(file, syntax, output=NULL, quiet=FALSE, debug=FALSE,
+##' RweaveOrgSetup
+##'
+##' @param file file
+##' @param syntax syntax
+##' @param output output
+##' @param quiet quiet
+##' @param debug debug
+##' @param stylepath stylepath
+##' @param ... ...
+##' @keywords internal
+RweaveOrgSetup <- function(file, syntax, output=NULL, quiet=FALSE, debug=FALSE,
              stylepath, ...)
 {
     dots <- list(...)
@@ -29,7 +73,7 @@ RweaveOrgSetup <-
                     split=FALSE, strip.white="true", include=TRUE,
                     pdf.version=grDevices::pdf.options()$version,
                     pdf.encoding=grDevices::pdf.options()$encoding,
-                    concordance=FALSE, expand=TRUE)
+                    concordance=FALSE, expand=TRUE, begin = "#+BEGIN_SRC R-transcript\n", end = "#+END_SRC\n")
     options[names(dots)] <- dots
 
     ## to be on the safe side: see if defaults pass the check
@@ -41,6 +85,10 @@ RweaveOrgSetup <-
          srcfile=srcfile(file))
 }
 
+##' RweaveOrgCodeRunner
+##'
+##' @param evalFunc evalFunc
+##' @keywords internal
 makeRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 {
     ## Return a function suitable as the 'runcode' element
@@ -140,7 +188,7 @@ makeRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                 if(options$echo && length(dce)){
                     if(!openSinput){
                         if(!openSchunk){
-                            cat("#+BEGIN_SRC R-transcript\n",
+                            cat(options$begin,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1] <- srcline
                             thisline <- thisline + 1
@@ -191,7 +239,7 @@ makeRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                     }
                     if(options$results=="verbatim"){
                         if(!openSchunk){
-                            cat("#+BEGIN_SRC R-transcript\n",
+                            cat(options$begin,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -211,7 +259,7 @@ makeRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                             openSchunk <- TRUE
                         }
                         if(openSchunk){
-                            cat("#+END_SRC\n",
+                            cat(options$end,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -250,7 +298,7 @@ makeRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
           }
 
           if(openSchunk){
-              cat("#+END_SRC\n", file=chunkout, append=TRUE)
+              cat(options$end, file=chunkout, append=TRUE)
               linesout[thisline + 1L] <- srcline
               thisline <- thisline + 1L
           }
@@ -319,6 +367,11 @@ makeRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 
 RweaveOrgRuncode <- makeRweaveOrgCodeRunner()
 
+##' RweaveOrgWritedoc
+##'
+##' @param object object
+##' @param chunk chunk
+##' @keywords internal
 RweaveOrgWritedoc <- function(object, chunk)
 {
     linesout <- attr(chunk, "srclines")
@@ -354,6 +407,11 @@ RweaveOrgWritedoc <- function(object, chunk)
     return(object)
 }
 
+##' RweaveOrgFinish
+##'
+##' @param object object
+##' @param error error
+##' @keywords internal
 RweaveOrgFinish <- function(object, error=FALSE)
 {
     outputname <- summary(object$output)$description
@@ -385,6 +443,10 @@ RweaveOrgFinish <- function(object, error=FALSE)
     invisible(outputname)
 }
 
+##' RweaveOrgOptions
+##'
+##' @param options options
+##' @keywords internal
 RweaveOrgOptions <- function(options)
 {
 
@@ -400,7 +462,7 @@ RweaveOrgOptions <- function(options)
     NUMOPTS <- c("width", "height", "res")
     NOLOGOPTS <- c(NUMOPTS, "ext", "results", "prefix.string",
                    "engine", "label", "strip.white",
-                   "pdf.version", "pdf.encoding", "pointsize")
+                   "pdf.version", "pdf.encoding", "pointsize", "begin", "end")
 
     for(opt in names(options)){
         if(! (opt %in% NOLOGOPTS)){
@@ -430,7 +492,10 @@ RweaveOrgOptions <- function(options)
     options
 }
 
-
+##' RweaveChunkPrefix
+##'
+##' @param options options
+##' @keywords internal
 RweaveChunkPrefix <- function(options)
 {
     if(!is.null(options$label)){
@@ -448,6 +513,11 @@ RweaveChunkPrefix <- function(options)
     return(chunkprefix)
 }
 
+##' RweaveEvalWithOpt
+##'
+##' @param expr expr
+##' @param options options
+##' @keywords internal
 RweaveEvalWithOpt <- function (expr, options){
     if(options$eval){
         res <- try(.Internal(eval.with.vis(expr, .GlobalEnv, baseenv())),
@@ -459,7 +529,11 @@ RweaveEvalWithOpt <- function (expr, options){
     return(res)
 }
 
-
+##' RweaveTryStop
+##'
+##' @param err err
+##' @param options options
+##' @keywords internal
 RweaveTryStop <- function(err, options){
 
     if(inherits(err, "try-error")){
@@ -478,6 +552,9 @@ RweaveTryStop <- function(err, options){
 
 ###**********************************************************
 
+##' RtangleOrg
+##'
+##' @keywords internal
 RtangleOrg <-  function()
 {
     list(setup = RtangleOrgSetup,
@@ -487,7 +564,16 @@ RtangleOrg <-  function()
          checkopts = RweaveOrgOptions)
 }
 
-
+##' RtangleOrgSetup
+##'
+##' @param file file
+##' @param syntax syntax
+##' @param output output
+##' @param annotate annotate
+##' @param split split
+##' @param prefix prefix
+##' @param quiet quiet
+##' @keywords internal
 RtangleOrgSetup <- function(file, syntax,
                          output=NULL, annotate=TRUE, split=FALSE,
                          prefix=TRUE, quiet=FALSE)
@@ -519,7 +605,12 @@ RtangleOrgSetup <- function(file, syntax,
          chunkout=list(), quiet=quiet, syntax=syntax)
 }
 
-
+##' RtangleOrgRuncode
+##'
+##' @param object object
+##' @param chunk chunk
+##' @param options options
+##' @keywords internal
 RtangleOrgRuncode <-  function(object, chunk, options)
 {
     if(!(options$engine %in% c("R", "S"))){
@@ -568,6 +659,11 @@ RtangleOrgRuncode <-  function(object, chunk, options)
     return(object)
 }
 
+##' RtangleOrgWritedoc
+##'
+##' @param object object
+##' @param chunk chunk
+##' @keywords internal
 RtangleOrgWritedoc <- function(object, chunk)
 {
     while(length(pos <- grep(object$syntax$docopt, chunk)))
@@ -581,7 +677,11 @@ RtangleOrgWritedoc <- function(object, chunk)
     return(object)
 }
 
-
+##' RtangleOrgFinish
+##'
+##' @param object object
+##' @param error error
+##' @keywords internal
 RtangleOrgFinish <- function(object, error=FALSE)
 {
     if(!is.null(object$output))

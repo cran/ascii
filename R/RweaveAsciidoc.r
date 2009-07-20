@@ -1,3 +1,39 @@
+
+
+##' A driver to parse asciidoc noweb files with Sweave tool
+##' This driver parses asciidoc files containing R code and replace pieces of
+##' code with their output.
+##' 
+##' 
+##' @aliases RweaveAsciidoc RtangleAsciidoc RweaveAsciidocOptions
+##'   RweaveAsciidocFinish RweaveAsciidocWritedoc RweaveAsciidocSetup
+##'   RweaveAsciidocRuncode cacheSweaveAsciidoc weaverAsciidoc
+##' @return None value is returned. From a .Rnw noweb file, the corresponding
+##'   .txt is produced (as eventuals files for graphs).
+##' @note In order to work properly, noweb codes have to be located at the
+##'   beginning of a line (no indentation).
+##' 
+##' Compare with RweaveLatex driver, RweaveAsciidoc provides four new options :
+##'   \code{res} for the resolution of jpg or png figure (if produced),
+##'   \code{ext} (extension) for the format of figure that will be inserted,
+##'   and \code{png} and \code{jpg} (from \code{R2HTML} package) to produce png
+##'   and jpg figures.
+##' 
+##' In addition, \code{cache} option from \code{cacheSweave} or \code{weaver}
+##'   package is also available with \code{cacheSweaveAsciidoc} driver and
+##'   \code{weaverAsciidoc} driver.
+##' 
+##' A wrapper for \code{Sweave} can be used, named \code{Asciidoc}.
+##' @author David Hajage \email{dhajage@@gmail.com}
+##' @seealso \code{\link[utils]{Sweave}}, \code{\link[ascii]{Asciidoc}}
+##' @keywords IO file
+##' @export
+##' @examples
+##'   \dontrun{
+##' library(ascii)
+##' Asciidoc("file.Rnw")
+##'   }
+##' 
 RweaveAsciidoc <- function()
 {
     list(setup = RweaveAsciidocSetup,
@@ -6,9 +42,17 @@ RweaveAsciidoc <- function()
          finish = RweaveAsciidocFinish,
          checkopts = RweaveAsciidocOptions)
 }
-
-RweaveAsciidocSetup <-
-    function(file, syntax, output=NULL, quiet=FALSE, debug=FALSE,
+##' RweaveAsciidocSetup
+##'
+##' @param file file
+##' @param syntax syntax
+##' @param output output
+##' @param quiet quiet
+##' @param debug debug
+##' @param stylepath stylepath
+##' @param ... ...
+##' @keywords internal
+RweaveAsciidocSetup <- function(file, syntax, output=NULL, quiet=FALSE, debug=FALSE,
              stylepath, ...)
 {
     dots <- list(...)
@@ -29,7 +73,7 @@ RweaveAsciidocSetup <-
                     split=FALSE, strip.white="true", include=TRUE,
                     pdf.version=grDevices::pdf.options()$version,
                     pdf.encoding=grDevices::pdf.options()$encoding,
-                    concordance=FALSE, expand=TRUE)
+                    concordance=FALSE, expand=TRUE, begin = "----\n", end = "----\n")
     options[names(dots)] <- dots
 
     ## to be on the safe side: see if defaults pass the check
@@ -40,7 +84,10 @@ RweaveAsciidocSetup <-
          options=options, chunkout=list(), srclines=integer(0L),
          srcfile=srcfile(file))
 }
-
+##' makeRweaveAsciidocCodeRunner
+##'
+##' @param evalFunc evalFunc
+##' @keywords internal
 makeRweaveAsciidocCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 {
     ## Return a function suitable as the 'runcode' element
@@ -140,7 +187,7 @@ makeRweaveAsciidocCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                 if(options$echo && length(dce)){
                     if(!openSinput){
                         if(!openSchunk){
-                            cat("----\n",
+                            cat(options$begin,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1] <- srcline
                             thisline <- thisline + 1
@@ -191,7 +238,7 @@ makeRweaveAsciidocCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                     }
                     if(options$results=="verbatim"){
                         if(!openSchunk){
-                            cat("----\n",
+                            cat(options$begin,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -211,7 +258,7 @@ makeRweaveAsciidocCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                             openSchunk <- TRUE
                         }
                         if(openSchunk){
-                            cat("----\n",
+                            cat(options$end,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -250,7 +297,7 @@ makeRweaveAsciidocCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
           }
 
           if(openSchunk){
-              cat("----\n", file=chunkout, append=TRUE)
+              cat(options$end, file=chunkout, append=TRUE)
               linesout[thisline + 1L] <- srcline
               thisline <- thisline + 1L
           }
@@ -319,6 +366,11 @@ makeRweaveAsciidocCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 
 RweaveAsciidocRuncode <- makeRweaveAsciidocCodeRunner()
 
+##' RweaveAsciidocWritedoc
+##'
+##' @param object object
+##' @param chunk chunk
+##' @keywords internal
 RweaveAsciidocWritedoc <- function(object, chunk)
 {
     linesout <- attr(chunk, "srclines")
@@ -354,6 +406,11 @@ RweaveAsciidocWritedoc <- function(object, chunk)
     return(object)
 }
 
+##' RweaveAsciidocFinish
+##'
+##' @param object object
+##' @param error error
+##' @keywords internal
 RweaveAsciidocFinish <- function(object, error=FALSE)
 {
     outputname <- summary(object$output)$description
@@ -385,6 +442,10 @@ RweaveAsciidocFinish <- function(object, error=FALSE)
     invisible(outputname)
 }
 
+##' RweaveAsciidocOptions
+##'
+##' @param options options
+##' @keywords internal
 RweaveAsciidocOptions <- function(options)
 {
 
@@ -400,7 +461,7 @@ RweaveAsciidocOptions <- function(options)
     NUMOPTS <- c("width", "height", "res")
     NOLOGOPTS <- c(NUMOPTS, "ext", "results", "prefix.string",
                    "engine", "label", "strip.white",
-                   "pdf.version", "pdf.encoding", "pointsize")
+                   "pdf.version", "pdf.encoding", "pointsize", "begin", "end")
 
     for(opt in names(options)){
         if(! (opt %in% NOLOGOPTS)){
@@ -431,6 +492,10 @@ RweaveAsciidocOptions <- function(options)
 }
 
 
+##' RweaveChunkPrefix
+##'
+##' @param options options
+##' @keywords internal
 RweaveChunkPrefix <- function(options)
 {
     if(!is.null(options$label)){
@@ -448,6 +513,11 @@ RweaveChunkPrefix <- function(options)
     return(chunkprefix)
 }
 
+##' RweaveEvalWithOpt
+##'
+##' @param expr expr
+##' @param options options
+##' @keywords internal
 RweaveEvalWithOpt <- function (expr, options){
     if(options$eval){
         res <- try(.Internal(eval.with.vis(expr, .GlobalEnv, baseenv())),
@@ -459,7 +529,11 @@ RweaveEvalWithOpt <- function (expr, options){
     return(res)
 }
 
-
+##' RweaveTryStop
+##'
+##' @param err err
+##' @param options options
+##' @keywords internal
 RweaveTryStop <- function(err, options){
 
     if(inherits(err, "try-error")){
@@ -478,6 +552,9 @@ RweaveTryStop <- function(err, options){
 
 ###**********************************************************
 
+##' RtangleAsciidoc
+##'
+##' @keywords internal
 RtangleAsciidoc <-  function()
 {
     list(setup = RtangleAsciidocSetup,
@@ -488,6 +565,16 @@ RtangleAsciidoc <-  function()
 }
 
 
+##' RtangleAsciidocSetup
+##'
+##' @keywords internal
+##' @param file file
+##' @param syntax syntax
+##' @param output output
+##' @param annotate annotate
+##' @param split split
+##' @param prefix prefix
+##' @param quiet quiet
 RtangleAsciidocSetup <- function(file, syntax,
                          output=NULL, annotate=TRUE, split=FALSE,
                          prefix=TRUE, quiet=FALSE)
@@ -520,6 +607,11 @@ RtangleAsciidocSetup <- function(file, syntax,
 }
 
 
+##' RtangleAsciidocRuncode
+##' @param object object
+##' @param chunk chunk
+##' @param options options
+##' @keywords internal
 RtangleAsciidocRuncode <-  function(object, chunk, options)
 {
     if(!(options$engine %in% c("R", "S"))){
@@ -568,6 +660,10 @@ RtangleAsciidocRuncode <-  function(object, chunk, options)
     return(object)
 }
 
+##' RtangleAsciidocWritedoc
+##' @param object object
+##' @param chunk chunk
+##' @keywords internal
 RtangleAsciidocWritedoc <- function(object, chunk)
 {
     while(length(pos <- grep(object$syntax$docopt, chunk)))
@@ -582,6 +678,10 @@ RtangleAsciidocWritedoc <- function(object, chunk)
 }
 
 
+##' RtangleAsciidocFinish
+##' @param object object
+##' @param error error
+##' @keywords internal
 RtangleAsciidocFinish <- function(object, error=FALSE)
 {
     if(!is.null(object$output))

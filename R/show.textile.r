@@ -1,3 +1,10 @@
+##' header.textile
+##'
+##' @keywords internal
+##' @param caption caption
+##' @param caption.level caption.level
+##' @param frame frame
+##' @param width width
 header.textile <- function(caption = NULL, caption.level = NULL, frame = NULL, width = 0) {
   
   if (!is.null(frame)) {
@@ -14,24 +21,28 @@ header.textile <- function(caption = NULL, caption.level = NULL, frame = NULL, w
   listarg <- listarg[listarg != ""]
 
   if (length(listarg) != 0) {
-    res <- paste("table{", paste(listarg, collapse = ";"), "}\n", sep = "")
+    res <- paste("table{", paste(listarg, collapse = ";"), "}.\n", sep = "")
   }
   else res <- ""
 
   if (!is.null(caption)) {
     if (!is.null(caption.level)) {
       if (is.numeric(caption.level) & caption.level > 0) { lev <- paste("h", caption.level, ".", sep = "") ; res <- paste(lev, " ", caption, " ", lev, "\n\n", sep = "") }
-      else if (caption.level == "s") res <- paste(beauty.textile(caption, "s"), "\n", sep = "")
-      else if (caption.level == "e") res <- paste(beauty.textile(caption, "e"), "\n", sep = "")
-      else if (caption.level == "m") res <- paste(beauty.textile(caption, "m"), "\n", sep = "")
+      else if (caption.level == "s") res <- paste(beauty.textile(caption, "s"), "\n\n", sep = "")
+      else if (caption.level == "e") res <- paste(beauty.textile(caption, "e"), "\n\n", sep = "")
+      else if (caption.level == "m") res <- paste(beauty.textile(caption, "m"), "\n\n", sep = "")
     } else {
-      res <- paste(caption, "\n", res, sep = "")
+      res <- paste(caption, "\n\n", res, sep = "")
     }
   }
   return(res)
 }
 
-# beautify for textile
+##' beauty.textile
+##'
+##' @keywords internal
+##' @param x x
+##' @param beauti beauti
 beauty.textile <- function(x, beauti = c("e", "m", "s")) {
   x[is.na(x)] <- "NA"  
   if (beauti == "s") {
@@ -49,6 +60,12 @@ beauty.textile <- function(x, beauti = c("e", "m", "s")) {
   return(x)
 }
 
+##' vsep.textile
+##'
+##' @keywords internal
+##' @param align align
+##' @param valign valign
+##' @param style style
 vsep.textile <- function (align = NULL, valign = NULL, style = NULL) {
   if (is.null(align) & is.null(valign) & is.null(style)) {
     res <- ""
@@ -77,14 +94,62 @@ vsep.textile <- function (align = NULL, valign = NULL, style = NULL) {
   return(res)
 }
 
-escape.t2t <- function(x) {
+##' escape.textile
+##'
+##' @keywords internal
+##' @param x x
+escape.textile <- function(x) {
   xx <- gsub("\\|", "\\\\|", x)
   xx
 }
 
+##' show.textile.table
+##'
+##' @keywords internal
+##' @param x x
+##' @param include.rownames include.rownames 
+##' @param include.colnames include.colnames 
+##' @param rownames rownames 
+##' @param colnames colnames 
+##' @param format format 
+##' @param digits digits 
+##' @param decimal.mark decimal.mark 
+##' @param na.print na.print 
+##' @param caption caption 
+##' @param caption.level 
+##' @param width width 
+##' @param frame frame 
+##' @param grid grid 
+##' @param valign valign 
+##' @param header header 
+##' @param footer footer 
+##' @param align align 
+##' @param col.width col.width 
+##' @param style style 
+##' @param lgroup lgroup 
+##' @param n.lgroup n.lgroup 
+##' @param lalign lalign 
+##' @param lvalign lvalign 
+##' @param lstyle lstyle 
+##' @param rgroup rgroup 
+##' @param n.rgroup n.rgroup 
+##' @param ralign ralign 
+##' @param rvalign rvalign 
+##' @param rstyle rstyle 
+##' @param tgroup tgroup 
+##' @param n.tgroup n.tgroup 
+##' @param talign talign 
+##' @param tvalign tvalign 
+##' @param tstyle tstyle 
+##' @param bgroup bgroup
+##' @param n.bgroup n.bgroup 
+##' @param balign balign 
+##' @param bvalign bvalign 
+##' @param bstyle bstyle 
+##' @param ... ...
 show.textile.table <- function(x, include.rownames = FALSE, include.colnames = FALSE, rownames = NULL, colnames = NULL, format = "f", digits = 2, decimal.mark = ".", na.print = "", caption = NULL, caption.level = NULL, width = 0, frame = NULL, grid = NULL, valign = NULL, header = FALSE, footer = FALSE, align = NULL, col.width = 1, style = NULL, lgroup = NULL, n.lgroup = NULL, lalign = "c", lvalign = "middle", lstyle = "h", rgroup = NULL, n.rgroup = NULL, ralign = "c", rvalign = "middle", rstyle = "h", tgroup = NULL, n.tgroup = NULL, talign = "c", tvalign = "middle", tstyle = "h", bgroup = NULL, n.bgroup = NULL, balign = "c", bvalign = "middle", bstyle = "h", ...) {
 
-  x <- escape.t2t(tocharac(x, include.rownames, include.colnames, rownames, colnames, format, digits, decimal.mark, na.print))
+  x <- escape.textile(tocharac(x, include.rownames, include.colnames, rownames, colnames, format, digits, decimal.mark, na.print))
   nrowx <- nrow(x)
   ncolx <- ncol(x)
   
@@ -96,36 +161,45 @@ show.textile.table <- function(x, include.rownames = FALSE, include.colnames = F
     vsep[style == "h"] <- "|_"
     style[!(style %in% c("s", "e", "m"))] <- ""
     style[style == "s"] <- "*"
-    style[style == "e"] <- "/"
+    style[style == "e"] <- "_"
     style[style == "m"] <- "<code>"
   } else {
     style <- ""
+    style <- expand(style, nrowx, ncolx)
   }
+  if (include.rownames & include.colnames) {
+    style[1, 1] <- ""
+  }
+
   vsep <- cbind(vsep, rep("|", nrowx))
   
   before_cell_content <- after_cell_content <- style
-  before_cell_content <- paste.matrix(" ", before_cell_content, sep = "")
-  after_cell_content <- paste.matrix(after_cell_content, " ", sep = "")
+  before_cell_content <- paste.matrix(" ", before_cell_content, sep = "", transpose.vector = TRUE)
+  after_cell_content <- paste.matrix(after_cell_content, " ", sep = "", transpose.vector = TRUE)
   after_cell_content[after_cell_content == "<code> "] <- "</code> "
 
   if (is.logical(header) & header)
     header <- 1
   if (header > 0) {
-    vsep[1:min(c(header, nrowx)), -ncol(vsep)] <- "|_."
+    vsep[1:min(c(header, nrowx)), -ncol(vsep)] <- "|_"
   }
   if (is.logical(footer) & footer)
     footer <- 1
   if (footer > 0) {
-    vsep[nrow(x):(nrow(x)+1-min(c(footer, nrowx))), -ncol(vsep)] <- "|_."
+    vsep[nrow(x):(nrow(x)+1-min(c(footer, nrowx))), -ncol(vsep)] <- "|_"
   }
   
   if (!is.null(align)) {
     align <- expand(align, nrow(x), ncolx)
+  } else {
+    align <- expand("", nrow(x), ncolx)
   }
   if (!is.null(valign)) {
     valign <- expand(valign, nrow(x), ncolx)
+  } else {
+    valign <- expand("", nrow(x), ncolx)
   }
-  after_vsep <- vsep.textile(align, valign)
+  after_vsep <- paste.matrix(vsep.textile(align, valign), ".", sep = "", transpose.vector = TRUE)
 
   if (include.rownames & include.colnames)
     after_vsep[1, 1] <- ""
@@ -237,6 +311,14 @@ show.textile.table <- function(x, include.rownames = FALSE, include.colnames = F
   cat(results, sep = "\n")
 }
 
+##' show.textile.list
+##'
+##' @keywords internal
+##' @param x x
+##' @param caption caption
+##' @param caption.level caption.level
+##' @param list.type list.type
+##' @param ... ...
 show.textile.list <- function(x, caption = NULL, caption.level = NULL, list.type = "bullet", ...) {
   if (list.type == "bullet") mark <- rep("*", length(x))
   if (list.type == "number") mark <- rep("#", length(x))

@@ -1,3 +1,7 @@
+##' A driver to parse asciidoc noweb files with Sweave tool - cacheSweave based
+##'
+##' @export
+##' @author David Hajage
 cacheSweaveAsciidoc <- function()
 {
     require(cacheSweave)
@@ -8,6 +12,10 @@ cacheSweaveAsciidoc <- function()
          checkopts = RweaveAsciidocOptions)
 }
 
+##' A driver to parse asciidoc noweb files with Sweave tool - cacheSweave based
+##'
+##' @keywords internal
+##' @author David Hajage
 cacheSweaveAsciidocSetup <-
     function(file, syntax, output=NULL, quiet=FALSE, debug=FALSE,
              stylepath, ...)
@@ -30,7 +38,7 @@ cacheSweaveAsciidocSetup <-
                     split=FALSE, strip.white="true", include=TRUE,
                     pdf.version=grDevices::pdf.options()$version,
                     pdf.encoding=grDevices::pdf.options()$encoding,
-                    concordance=FALSE, expand=TRUE, cache = FALSE)
+                    concordance=FALSE, expand=TRUE, begin = "----\n", end = "----\n", cache = FALSE)
     options[names(dots)] <- dots
 
     ## to be on the safe side: see if defaults pass the check
@@ -41,7 +49,10 @@ cacheSweaveAsciidocSetup <-
          options=options, chunkout=list(), srclines=integer(0L),
          srcfile=srcfile(file))
 }
-
+##' A driver to parse asciidoc noweb files with Sweave tool - cacheSweave based
+##'
+##' @keywords internal 
+##' @author David Hajage
 makeCacheRweaveAsciidocCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 {
     ## Return a function suitable as the 'runcode' element
@@ -143,7 +154,7 @@ makeCacheRweaveAsciidocCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                 if(options$echo && length(dce)){
                     if(!openSinput){
                         if(!openSchunk){
-                            cat("----\n",
+                            cat(options$begin,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1] <- srcline
                             thisline <- thisline + 1
@@ -198,7 +209,7 @@ makeCacheRweaveAsciidocCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                     }
                     if(options$results=="verbatim"){
                         if(!openSchunk){
-                            cat("----\n",
+                            cat(options$begin,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -218,7 +229,7 @@ makeCacheRweaveAsciidocCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                             openSchunk <- TRUE
                         }
                         if(openSchunk){
-                            cat("----\n",
+                            cat(options$end,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -257,7 +268,7 @@ makeCacheRweaveAsciidocCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
           }
 
           if(openSchunk){
-              cat("----\n", file=chunkout, append=TRUE)
+              cat(options$end, file=chunkout, append=TRUE)
               linesout[thisline + 1L] <- srcline
               thisline <- thisline + 1L
           }
@@ -324,4 +335,7 @@ makeCacheRweaveAsciidocCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
     RweaveAsciidocRuncode
 }
 
+##' A driver to parse asciidoc noweb files with Sweave tool - cacheSweave based
+##'
+##' @author David Hajage
 cacheSweaveAsciidocRuncode <- makeCacheRweaveAsciidocCodeRunner()

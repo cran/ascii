@@ -1,3 +1,8 @@
+##' beauty.org
+##'
+##' @keywords internal
+##' @param x x
+##' @param beauti beauti
 beauty.org <- function(x, beauti = c("e", "m", "s")) {
   x[is.na(x)] <- "NA"
   if (beauti == "s") {
@@ -18,6 +23,12 @@ beauty.org <- function(x, beauti = c("e", "m", "s")) {
   return(x)
 }
 
+
+##' header.org
+##'
+##' @keywords internal
+##' @param caption caption
+##' @param caption.level caption.level
 header.org <- function(caption = NULL, caption.level = NULL) {
   res <- ""
   if (is.null(caption.level))
@@ -40,11 +51,61 @@ header.org <- function(caption = NULL, caption.level = NULL) {
   return(res)
 }
 
+
+##' escape.org
+##'
+##' @keywords internal
+##' @param x x
 escape.org <- function(x) {
   xx <- gsub("\\|", " \\\\vert ", x)
   xx
 }
 
+
+##' show.org.table
+##'
+##' @keywords internal
+##' @param x x
+##' @param include.rownames include.rownames 
+##' @param include.colnames include.colnames 
+##' @param rownames rownames 
+##' @param colnames colnames 
+##' @param format format 
+##' @param digits digits 
+##' @param decimal.mark decimal.mark 
+##' @param na.print na.print 
+##' @param caption caption 
+##' @param caption.level 
+##' @param width width 
+##' @param frame frame 
+##' @param grid grid 
+##' @param valign valign 
+##' @param header header 
+##' @param footer footer 
+##' @param align align 
+##' @param col.width col.width 
+##' @param style style 
+##' @param lgroup lgroup 
+##' @param n.lgroup n.lgroup 
+##' @param lalign lalign 
+##' @param lvalign lvalign 
+##' @param lstyle lstyle 
+##' @param rgroup rgroup 
+##' @param n.rgroup n.rgroup 
+##' @param ralign ralign 
+##' @param rvalign rvalign 
+##' @param rstyle rstyle 
+##' @param tgroup tgroup 
+##' @param n.tgroup n.tgroup 
+##' @param talign talign 
+##' @param tvalign tvalign 
+##' @param tstyle tstyle 
+##' @param bgroup bgroup
+##' @param n.bgroup n.bgroup 
+##' @param balign balign 
+##' @param bvalign bvalign 
+##' @param bstyle bstyle 
+##' @param ... ...
 show.org.table <- function(x, include.rownames = FALSE, include.colnames = FALSE, rownames = NULL, colnames = NULL, format = "f", digits = 2, decimal.mark = ".", na.print = "", caption = NULL, caption.level = NULL, width = 0, frame = NULL, grid = NULL, valign = NULL, header = FALSE, footer = FALSE, align = NULL, col.width = 1, style = NULL, lgroup = NULL, n.lgroup = NULL, lalign = "c", lvalign = "middle", lstyle = "h", rgroup = NULL, n.rgroup = NULL, ralign = "c", rvalign = "middle", rstyle = "h", tgroup = NULL, n.tgroup = NULL, talign = "c", tvalign = "middle", tstyle = "h", bgroup = NULL, n.bgroup = NULL, balign = "c", bvalign = "middle", bstyle = "h", ...) {
 
   x <- escape.org(tocharac(x, include.rownames, include.colnames, rownames, colnames, format, digits, decimal.mark, na.print))
@@ -59,17 +120,78 @@ show.org.table <- function(x, include.rownames = FALSE, include.colnames = FALSE
     style[style == "m"] <- "="
   } else {
     style <- ""
+    style <- expand(style, nrowx, ncolx)
   }
+  if (include.rownames & include.colnames) {
+    style[1, 1] <- ""
+  }
+  
   before_cell_content <- after_cell_content <- style
-  before_cell_content <- paste.matrix(" ", before_cell_content, sep = "")
-  after_cell_content <- paste.matrix(after_cell_content, " ", sep = "")
+  before_cell_content <- paste.matrix(" ", before_cell_content, sep = "", transpose.vector = TRUE)
+  after_cell_content <- paste.matrix(after_cell_content, " ", sep = "", transpose.vector = TRUE)
 
+  if (tstyle == "h")
+    tstyle <- "s"
+  if (bstyle == "h")
+    bstyle <- "s"
+  if (rstyle == "h")
+    rstyle <- "s"
+  if (lstyle == "h")
+    lstyle <- "s"
+
+  # groups
+  if (!is.null(lgroup)) {
+    if (!is.list(lgroup))
+      lgroup <- list(lgroup)
+    n.lgroup <- groups(lgroup, n.lgroup, nrowx-include.colnames)[[2]]
+    linelgroup <- linegroup(lgroup, n.lgroup)
+  }
+  if (!is.null(rgroup)) {
+    if (!is.list(rgroup))
+      rgroup <- list(rgroup)
+    n.rgroup <- groups(rgroup, n.rgroup, nrowx-include.colnames)[[2]]
+    linergroup <- linegroup(rgroup, n.rgroup)
+  }
+  if (!is.null(tgroup)) {
+    if (!is.list(tgroup))
+      tgroup <- list(tgroup)
+    n.tgroup <- groups(tgroup, n.tgroup, ncolx-include.rownames)[[2]]
+    linetgroup <- linegroup(tgroup, n.tgroup)
+  }
+  if (!is.null(bgroup)) {
+    if (!is.list(bgroup))
+      bgroup <- list(bgroup)
+    n.bgroup <- groups(bgroup, n.bgroup, ncolx-include.rownames)[[2]]
+    linebgroup <- linegroup(bgroup, n.bgroup)
+  }
+
+  if (!is.null(lgroup)) {
+    for (i in 1:length(lgroup)) {
+      x <- cbind(c(rep("", include.colnames), beauty.org(linelgroup[[i]], lstyle)), x)
+    }
+  }
+  if (!is.null(rgroup)) {
+    for (i in 1:length(rgroup)) {
+      x <- cbind(x, c(rep("", include.colnames), beauty.org(linergroup[[i]], rstyle)))
+    }
+  }
+  if (!is.null(tgroup)) {
+    for (i in 1:length(tgroup)) {
+      x <- rbind(c(rep("", include.rownames + length(lgroup)), beauty.org(linetgroup[[i]], tstyle), rep("", length(rgroup))), x)
+    }
+  }
+  if (!is.null(bgroup)) {
+    for (i in 1:length(bgroup)) {
+      x <- rbind(x, c(rep("", include.rownames + length(lgroup)), beauty.org(linebgroup[[i]], bstyle), rep("", length(rgroup))))
+    }
+  }
+  
   line_separator <- FALSE
   line_separator_pos <- NULL
   if (is.logical(header) & header)
     header <- 1
   if (header > 0) {
-    line_separator_pos <- min(c(header, nrowx))
+    line_separator_pos <- min(c(header, nrowx)) + length(tgroup)
     line_separator <- TRUE
   }
 
@@ -82,6 +204,15 @@ show.org.table <- function(x, include.rownames = FALSE, include.colnames = FALSE
   cat(results, sep = "\n")
 }
 
+
+##' show.org.list
+##'
+##' @keywords internal
+##' @param x x
+##' @param caption caption
+##' @param caption.level caption.level
+##' @param list.type list.type
+##' @param ... ...
 show.org.list <- function(x, caption = NULL, caption.level = NULL, list.type = "bullet", ...) {
   indent.mark <- "  "
   if (list.type == "bullet") mark <- rep("-", length(x))

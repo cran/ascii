@@ -1,3 +1,39 @@
+
+
+##' A driver to parse textile noweb files with Sweave tool
+##' This driver parses textile files containing R code and replace pieces of
+##' code with their output.
+##' 
+##' 
+##' @aliases RweaveTextile RtangleTextile RweaveTextileOptions
+##'   RweaveTextileFinish RweaveTextileWritedoc RweaveTextileSetup
+##'   RweaveTextileRuncode cacheSweaveTextile weaverTextile
+##' @return None value is returned. From a .Rnw noweb file, the corresponding
+##'   .txt is produced (as eventuals files for graphs).
+##' @note In order to work properly, noweb codes have to be located at the
+##'   beginning of a line (no indentation).
+##' 
+##' Compare with RweaveLatex driver, RweaveTextile provides four new options :
+##'   \code{res} for the resolution of jpg or png figure (if produced),
+##'   \code{ext} (extension) for the format of figure that will be inserted,
+##'   and \code{png} and \code{jpg} (from \code{R2HTML} package) to produce png
+##'   and jpg figures.
+##' 
+##' In addition, \code{cache} option from \code{cacheSweave} or \code{weaver}
+##'   package is also available with \code{cacheSweaveTextile} driver and
+##'   \code{weaverTextile} driver.
+##' 
+##' A wrapper for \code{Sweave} can be used, named \code{Textile}.
+##' @author David Hajage \email{dhajage@@gmail.com}
+##' @seealso \code{\link[utils]{Sweave}}, \code{\link[ascii]{Textile}}
+##' @keywords IO file
+##' @export
+##' @examples
+##'   \dontrun{
+##' library(ascii)
+##' Textile("file.Rnw")
+##'   }
+##' 
 RweaveTextile <- function()
 {
     list(setup = RweaveTextileSetup,
@@ -7,8 +43,17 @@ RweaveTextile <- function()
          checkopts = RweaveTextileOptions)
 }
 
-RweaveTextileSetup <-
-    function(file, syntax, output=NULL, quiet=FALSE, debug=FALSE,
+##' RweaveTextileSetup
+##'
+##' @param file file
+##' @param syntax syntax
+##' @param output output
+##' @param quiet quiet
+##' @param debug debug
+##' @param stylepath stylepath
+##' @param ... ...
+##' @keywords internal
+RweaveTextileSetup <- function(file, syntax, output=NULL, quiet=FALSE, debug=FALSE,
              stylepath, ...)
 {
     dots <- list(...)
@@ -29,7 +74,7 @@ RweaveTextileSetup <-
                     split=FALSE, strip.white="true", include=TRUE,
                     pdf.version=grDevices::pdf.options()$version,
                     pdf.encoding=grDevices::pdf.options()$encoding,
-                    concordance=FALSE, expand=TRUE)
+                    concordance=FALSE, expand=TRUE, begin = "\nbc.. ", end = "\np. \n")
     options[names(dots)] <- dots
 
     ## to be on the safe side: see if defaults pass the check
@@ -41,6 +86,10 @@ RweaveTextileSetup <-
          srcfile=srcfile(file))
 }
 
+##' makeRweaveTextileCodeRunner
+##'
+##' @param evalFunc evalFunc
+##' @keywords internal
 makeRweaveTextileCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 {
     ## Return a function suitable as the 'runcode' element
@@ -140,7 +189,7 @@ makeRweaveTextileCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                 if(options$echo && length(dce)){
                     if(!openSinput){
                         if(!openSchunk){
-                            cat("<pre>\n",
+                            cat(options$begin,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1] <- srcline
                             thisline <- thisline + 1
@@ -191,7 +240,7 @@ makeRweaveTextileCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                     }
                     if(options$results=="verbatim"){
                         if(!openSchunk){
-                            cat("<pre>\n",
+                            cat(options$begin,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -211,7 +260,7 @@ makeRweaveTextileCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                             openSchunk <- TRUE
                         }
                         if(openSchunk){
-                            cat("</pre>\n",
+                            cat(options$end,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -250,7 +299,7 @@ makeRweaveTextileCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
           }
 
           if(openSchunk){
-              cat("</pre>\n", file=chunkout, append=TRUE)
+              cat(options$end, file=chunkout, append=TRUE)
               linesout[thisline + 1L] <- srcline
               thisline <- thisline + 1L
           }
@@ -319,6 +368,11 @@ makeRweaveTextileCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 
 RweaveTextileRuncode <- makeRweaveTextileCodeRunner()
 
+##' RweaveTextileWritedoc
+##'
+##' @param object object
+##' @param chunk chunk
+##' @keywords internal
 RweaveTextileWritedoc <- function(object, chunk)
 {
     linesout <- attr(chunk, "srclines")
@@ -354,6 +408,11 @@ RweaveTextileWritedoc <- function(object, chunk)
     return(object)
 }
 
+##' RweaveTextileFinish
+##'
+##' @param object object
+##' @param error error
+##' @keywords internal
 RweaveTextileFinish <- function(object, error=FALSE)
 {
     outputname <- summary(object$output)$description
@@ -385,6 +444,10 @@ RweaveTextileFinish <- function(object, error=FALSE)
     invisible(outputname)
 }
 
+##' RweaveTextileOptions
+##'
+##' @param options options
+##' @keywords internal
 RweaveTextileOptions <- function(options)
 {
 
@@ -400,7 +463,7 @@ RweaveTextileOptions <- function(options)
     NUMOPTS <- c("width", "height", "res")
     NOLOGOPTS <- c(NUMOPTS, "ext", "results", "prefix.string",
                    "engine", "label", "strip.white",
-                   "pdf.version", "pdf.encoding", "pointsize")
+                   "pdf.version", "pdf.encoding", "pointsize", "begin", "end")
 
     for(opt in names(options)){
         if(! (opt %in% NOLOGOPTS)){
@@ -430,7 +493,10 @@ RweaveTextileOptions <- function(options)
     options
 }
 
-
+##' RweaveChunkPrefix
+##'
+##' @param options options
+##' @keywords internal
 RweaveChunkPrefix <- function(options)
 {
     if(!is.null(options$label)){
@@ -448,6 +514,11 @@ RweaveChunkPrefix <- function(options)
     return(chunkprefix)
 }
 
+##' RweaveEvalWithOpt
+##'
+##' @param expr expr
+##' @param options options
+##' @keywords internal
 RweaveEvalWithOpt <- function (expr, options){
     if(options$eval){
         res <- try(.Internal(eval.with.vis(expr, .GlobalEnv, baseenv())),
@@ -459,7 +530,11 @@ RweaveEvalWithOpt <- function (expr, options){
     return(res)
 }
 
-
+##' RweaveTryStop
+##'
+##' @param err err
+##' @param options options
+##' @keywords internal
 RweaveTryStop <- function(err, options){
 
     if(inherits(err, "try-error")){
@@ -478,6 +553,9 @@ RweaveTryStop <- function(err, options){
 
 ###**********************************************************
 
+##' RtangleTextile
+##'
+##' @keywords internal
 RtangleTextile <-  function()
 {
     list(setup = RtangleTextileSetup,
@@ -487,7 +565,16 @@ RtangleTextile <-  function()
          checkopts = RweaveTextileOptions)
 }
 
-
+##' RtangleTextileSetup
+##'
+##' @param file file
+##' @param syntax syntax
+##' @param output output
+##' @param annotate annotate
+##' @param split split
+##' @param prefix prefix
+##' @param quiet quiet
+##' @keywords internal
 RtangleTextileSetup <- function(file, syntax,
                          output=NULL, annotate=TRUE, split=FALSE,
                          prefix=TRUE, quiet=FALSE)
@@ -519,7 +606,12 @@ RtangleTextileSetup <- function(file, syntax,
          chunkout=list(), quiet=quiet, syntax=syntax)
 }
 
-
+##' RtangleTextileRuncode
+##'
+##' @param object object
+##' @param chunk chunk
+##' @param options options
+##' @keywords internal
 RtangleTextileRuncode <-  function(object, chunk, options)
 {
     if(!(options$engine %in% c("R", "S"))){
@@ -568,6 +660,11 @@ RtangleTextileRuncode <-  function(object, chunk, options)
     return(object)
 }
 
+##' RtangleTextileWritedoc
+##'
+##' @param object object
+##' @param chunk chunk
+##' @keywords internal
 RtangleTextileWritedoc <- function(object, chunk)
 {
     while(length(pos <- grep(object$syntax$docopt, chunk)))
@@ -581,7 +678,11 @@ RtangleTextileWritedoc <- function(object, chunk)
     return(object)
 }
 
-
+##' RtangleTextileFinish
+##'
+##' @param object object
+##' @param error error
+##' @keywords internal
 RtangleTextileFinish <- function(object, error=FALSE)
 {
     if(!is.null(object$output))

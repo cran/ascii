@@ -1,3 +1,39 @@
+
+
+##' A driver to parse sphinx noweb files with Sweave tool
+##' This driver parses sphinx files containing R code and replace pieces of
+##' code with their output.
+##' 
+##' 
+##' @aliases RweaveReST RtangleReST RweaveReSTOptions RweaveReSTFinish
+##'   RweaveReSTWritedoc RweaveReSTSetup RweaveReSTRuncode cacheSweaveReST
+##'   weaverReST
+##' @return None value is returned. From a .Rnw noweb file, the corresponding
+##'   .rst is produced (as eventuals files for graphs).
+##' @note In order to work properly, noweb codes have to be located at the
+##'   beginning of a line (no indentation).
+##' 
+##' Compare with RweaveLatex driver, RweaveReST provides four new options :
+##'   \code{res} for the resolution of jpg or png figure (if produced),
+##'   \code{ext} (extension) for the format of figure that will be inserted,
+##'   and \code{png} and \code{jpg} (from \code{R2HTML} package) to produce png
+##'   and jpg figures.
+##' 
+##' In addition, \code{cache} option from \code{cacheSweave} or \code{weaver}
+##'   package is also available with \code{cacheSweaveReST} driver and
+##'   \code{weaverReST} driver.
+##' 
+##' A wrapper for \code{Sweave} can be used, named \code{ReST}.
+##' @author David Hajage \email{dhajage@@gmail.com}
+##' @seealso \code{\link[utils]{Sweave}}, \code{\link[ascii]{ReST}}
+##' @keywords IO file
+##' @export
+##' @examples
+##'   \dontrun{
+##' library(ascii)
+##' ReST("file.Rnw")
+##'   }
+##' 
 RweaveReST <- function()
 {
     list(setup = RweaveReSTSetup,
@@ -7,8 +43,17 @@ RweaveReST <- function()
          checkopts = RweaveReSTOptions)
 }
 
-RweaveReSTSetup <-
-    function(file, syntax, output=NULL, quiet=FALSE, debug=FALSE,
+##' RweaveReSTSetup
+##'
+##' @param file file
+##' @param syntax syntax
+##' @param output output
+##' @param quiet quite
+##' @param debug debug
+##' @param stylepath stylepath
+##' @param ... ...
+##' @keywords internal
+RweaveReSTSetup <- function(file, syntax, output=NULL, quiet=FALSE, debug=FALSE,
              stylepath, ...)
 {
     dots <- list(...)
@@ -29,7 +74,7 @@ RweaveReSTSetup <-
                     split=FALSE, strip.white="true", include=TRUE,
                     pdf.version=grDevices::pdf.options()$version,
                     pdf.encoding=grDevices::pdf.options()$encoding,
-                    concordance=FALSE, expand=TRUE)
+                    concordance=FALSE, expand=TRUE, begin = ".. code-block:: r\n\n", end = "\n\n")
     options[names(dots)] <- dots
 
     ## to be on the safe side: see if defaults pass the check
@@ -40,7 +85,10 @@ RweaveReSTSetup <-
          options=options, chunkout=list(), srclines=integer(0L),
          srcfile=srcfile(file))
 }
-
+##' makeRweaveReSTCodeRunner
+##'
+##' @param evalFunc evalFunc
+##' @keywords internal
 makeRweaveReSTCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 {
     ## Return a function suitable as the 'runcode' element
@@ -140,7 +188,7 @@ makeRweaveReSTCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                 if(options$echo && length(dce)){
                     if(!openSinput){
                         if(!openSchunk){
-                            cat(".. code-block:: r\n\n",
+                            cat(options$begin,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1] <- srcline
                             thisline <- thisline + 1
@@ -191,7 +239,7 @@ makeRweaveReSTCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                     }
                     if(options$results=="verbatim"){
                         if(!openSchunk){
-                            cat(".. code-block:: r\n\n",
+                            cat(options$begin,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -211,7 +259,7 @@ makeRweaveReSTCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                             openSchunk <- TRUE
                         }
                         if(openSchunk){
-                            cat("\n\n",
+                            cat(options$end,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -253,7 +301,7 @@ makeRweaveReSTCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
           }
 
           if(openSchunk){
-              cat("\n\n", file=chunkout, append=TRUE)
+              cat(options$end, file=chunkout, append=TRUE)
               linesout[thisline + 1L] <- srcline
               thisline <- thisline + 1L
           }
@@ -322,6 +370,11 @@ makeRweaveReSTCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 
 RweaveReSTRuncode <- makeRweaveReSTCodeRunner()
 
+##' RweaveReSTRuncode
+##'
+##' @param object object
+##' @param chunk chunk
+##' @keywords internal
 RweaveReSTWritedoc <- function(object, chunk)
 {
     linesout <- attr(chunk, "srclines")
@@ -357,6 +410,11 @@ RweaveReSTWritedoc <- function(object, chunk)
     return(object)
 }
 
+##' RweaveReSTFinish
+##'
+##' @param object object
+##' @param error error
+##' @keywords internal
 RweaveReSTFinish <- function(object, error=FALSE)
 {
     outputname <- summary(object$output)$description
@@ -388,6 +446,10 @@ RweaveReSTFinish <- function(object, error=FALSE)
     invisible(outputname)
 }
 
+##' RweaveReSTOptions
+##'
+##' @param options options
+##' @keywords internal
 RweaveReSTOptions <- function(options)
 {
 
@@ -403,7 +465,7 @@ RweaveReSTOptions <- function(options)
     NUMOPTS <- c("width", "height", "res")
     NOLOGOPTS <- c(NUMOPTS, "ext", "results", "prefix.string",
                    "engine", "label", "strip.white",
-                   "pdf.version", "pdf.encoding", "pointsize")
+                   "pdf.version", "pdf.encoding", "pointsize", "begin", "end")
 
     for(opt in names(options)){
         if(! (opt %in% NOLOGOPTS)){
@@ -433,7 +495,10 @@ RweaveReSTOptions <- function(options)
     options
 }
 
-
+##' RweaveChunkPrefix
+##'
+##' @param options options
+##' @keywords internal
 RweaveChunkPrefix <- function(options)
 {
     if(!is.null(options$label)){
@@ -451,6 +516,11 @@ RweaveChunkPrefix <- function(options)
     return(chunkprefix)
 }
 
+##' RweaveEvalWithOpt
+##'
+##' @param expr expr
+##' @param options options
+##' @keywords internal
 RweaveEvalWithOpt <- function (expr, options){
     if(options$eval){
         res <- try(.Internal(eval.with.vis(expr, .GlobalEnv, baseenv())),
@@ -462,7 +532,11 @@ RweaveEvalWithOpt <- function (expr, options){
     return(res)
 }
 
-
+##' RweaveTryStop
+##'
+##' @param err err
+##' @param options options
+##' @keywords internal
 RweaveTryStop <- function(err, options){
 
     if(inherits(err, "try-error")){
@@ -481,6 +555,9 @@ RweaveTryStop <- function(err, options){
 
 ###**********************************************************
 
+##' RtangleReST
+##'
+##' @keywords internal
 RtangleReST <-  function()
 {
     list(setup = RtangleReSTSetup,
@@ -490,7 +567,16 @@ RtangleReST <-  function()
          checkopts = RweaveReSTOptions)
 }
 
-
+##' RtangleReSTSetup
+##'
+##' @param file 
+##' @param syntax 
+##' @param output 
+##' @param annotate 
+##' @param split 
+##' @param prefix 
+##' @param quiet 
+##' @keywords internal
 RtangleReSTSetup <- function(file, syntax,
                          output=NULL, annotate=TRUE, split=FALSE,
                          prefix=TRUE, quiet=FALSE)
@@ -522,7 +608,12 @@ RtangleReSTSetup <- function(file, syntax,
          chunkout=list(), quiet=quiet, syntax=syntax)
 }
 
-
+##' RtangleReSTRuncode
+##'
+##' @param object object
+##' @param chunk chunk
+##' @param options options
+##' @keywords internal
 RtangleReSTRuncode <-  function(object, chunk, options)
 {
     if(!(options$engine %in% c("R", "S"))){
@@ -571,6 +662,11 @@ RtangleReSTRuncode <-  function(object, chunk, options)
     return(object)
 }
 
+##' RtangleReSTWritedoc
+##'
+##' @param object object
+##' @param chunk chunk
+##' @keywords internal
 RtangleReSTWritedoc <- function(object, chunk)
 {
     while(length(pos <- grep(object$syntax$docopt, chunk)))
@@ -584,7 +680,11 @@ RtangleReSTWritedoc <- function(object, chunk)
     return(object)
 }
 
-
+##' RtangleReSTFinish
+##'
+##' @param object object
+##' @param error error
+##' @keywords internal
 RtangleReSTFinish <- function(object, error=FALSE)
 {
     if(!is.null(object$output))

@@ -1,4 +1,9 @@
 # from http://tolstoy.newcastle.edu.au/R/help/06/03/22717.html
+
+##' interleave
+##' 
+##' @keywords internal
+##' @param ... ...
 interleave <- function(...) {
   args <- list(...)
   args <- args[!sapply(args, is.null)]
@@ -15,6 +20,13 @@ interleave <- function(...) {
 ## interleave(1:4, 5:8, 9:12)
 ## interleave(list(1, 2, 3, 4), list(5, 6, 7, 8))
 
+
+##' as.list.matrix
+##' 
+##' @keywords internal
+##' @param x x
+##' @param byrow byrow
+##' @param ... ...
 as.list.matrix <- function(x, byrow = TRUE, ...) {
   margin <- 2
   if (byrow)
@@ -23,6 +35,12 @@ as.list.matrix <- function(x, byrow = TRUE, ...) {
   lapply(apply(x, margin, list), function(x) x[[1]])
 }
 
+
+##' interleave.matrix
+##' 
+##' @keywords internal
+##' @param ... ...
+##' @param byrow byrow
 interleave.matrix <- function(..., byrow = TRUE) {
   args <- list(...)
   args <- args[!sapply(args, is.null)]
@@ -37,6 +55,12 @@ interleave.matrix <- function(..., byrow = TRUE) {
     do.call("cbind", interlists)
 }
 
+##' interleave.data.frame
+##' 
+##' @keywords internal
+##' @param ... ...
+##' @param byrow byrow
+##' @param pretty.rownames pretty.rownames
 interleave.data.frame <- function(..., byrow = TRUE, pretty.rownames = TRUE) {
   args <- list(...)
   args <- args[!sapply(args, is.null)]

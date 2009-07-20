@@ -1,3 +1,39 @@
+
+
+##' A driver to parse txt2tags noweb files with Sweave tool
+##' This driver parses txt2tags files containing R code and replace pieces of
+##' code with their output.
+##' 
+##' 
+##' @aliases RweaveT2t RtangleT2t RweaveT2tOptions RweaveT2tFinish
+##'   RweaveT2tWritedoc RweaveT2tSetup RweaveT2tRuncode cacheSweaveT2t
+##'   weaverT2t
+##' @return None value is returned. From a .Rnw noweb file, the corresponding
+##'   .t2t is produced (as eventuals files for graphs).
+##' @note In order to work properly, noweb codes have to be located at the
+##'   beginning of a line (no indentation).
+##' 
+##' Compare with RweaveLatex driver, RweaveT2t provides four new options :
+##'   \code{res} for the resolution of jpg or png figure (if produced),
+##'   \code{ext} (extension) for the format of figure that will be inserted,
+##'   and \code{png} and \code{jpg} (from \code{R2HTML} package) to produce png
+##'   and jpg figures.
+##' 
+##' In addition, \code{cache} option from \code{cacheSweave} or \code{weaver}
+##'   package is also available with \code{cacheSweaveT2t} driver and
+##'   \code{weaverT2t} driver.
+##' 
+##' A wrapper for \code{Sweave} can be used, named \code{T2t}.
+##' @author David Hajage \email{dhajage@@gmail.com}
+##' @seealso \code{\link[utils]{Sweave}}, \code{\link[ascii]{T2t}}
+##' @keywords IO file
+##' @export
+##' @examples
+##'   \dontrun{
+##' library(ascii)
+##' T2t("file.Rnw")
+##'   }
+##' 
 RweaveT2t <- function()
 {
     list(setup = RweaveT2tSetup,
@@ -7,8 +43,17 @@ RweaveT2t <- function()
          checkopts = RweaveT2tOptions)
 }
 
-RweaveT2tSetup <-
-    function(file, syntax, output=NULL, quiet=FALSE, debug=FALSE,
+##' RweaveT2tSetup
+##'
+##' @param file file
+##' @param syntax syntax
+##' @param output output
+##' @param quiet quite
+##' @param debug debug
+##' @param stylepath stylepath
+##' @param ... ...
+##' @keywords internal
+RweaveT2tSetup <- function(file, syntax, output=NULL, quiet=FALSE, debug=FALSE,
              stylepath, ...)
 {
     dots <- list(...)
@@ -29,7 +74,7 @@ RweaveT2tSetup <-
                     split=FALSE, strip.white="true", include=TRUE,
                     pdf.version=grDevices::pdf.options()$version,
                     pdf.encoding=grDevices::pdf.options()$encoding,
-                    concordance=FALSE, expand=TRUE)
+                    concordance=FALSE, expand=TRUE, begin = "```\n", end = "```\n")
     options[names(dots)] <- dots
 
     ## to be on the safe side: see if defaults pass the check
@@ -41,6 +86,10 @@ RweaveT2tSetup <-
          srcfile=srcfile(file))
 }
 
+##' makeRweaveT2tCodeRunner
+##'
+##' @param evalFunc 
+##' @keywords internal
 makeRweaveT2tCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 {
     ## Return a function suitable as the 'runcode' element
@@ -140,7 +189,7 @@ makeRweaveT2tCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                 if(options$echo && length(dce)){
                     if(!openSinput){
                         if(!openSchunk){
-                            cat("```\n",
+                            cat(options$begin,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1] <- srcline
                             thisline <- thisline + 1
@@ -191,7 +240,7 @@ makeRweaveT2tCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                     }
                     if(options$results=="verbatim"){
                         if(!openSchunk){
-                            cat("```\n",
+                            cat(options$begin,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -211,7 +260,7 @@ makeRweaveT2tCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                             openSchunk <- TRUE
                         }
                         if(openSchunk){
-                            cat("```\n",
+                            cat(options$end,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -250,7 +299,7 @@ makeRweaveT2tCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
           }
 
           if(openSchunk){
-              cat("```\n", file=chunkout, append=TRUE)
+              cat(options$end, file=chunkout, append=TRUE)
               linesout[thisline + 1L] <- srcline
               thisline <- thisline + 1L
           }
@@ -319,6 +368,11 @@ makeRweaveT2tCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 
 RweaveT2tRuncode <- makeRweaveT2tCodeRunner()
 
+##' RweaveT2tWritedoc
+##'
+##' @param object object
+##' @param chunk chunk
+##' @keywords internal
 RweaveT2tWritedoc <- function(object, chunk)
 {
     linesout <- attr(chunk, "srclines")
@@ -354,6 +408,11 @@ RweaveT2tWritedoc <- function(object, chunk)
     return(object)
 }
 
+##' RweaveT2tFinish
+##'
+##' @param object object
+##' @param error error
+##' @keywords internal
 RweaveT2tFinish <- function(object, error=FALSE)
 {
     outputname <- summary(object$output)$description
@@ -385,6 +444,10 @@ RweaveT2tFinish <- function(object, error=FALSE)
     invisible(outputname)
 }
 
+##' RweaveT2tOptions
+##'
+##' @param options 
+##' @keywords internal
 RweaveT2tOptions <- function(options)
 {
 
@@ -400,7 +463,7 @@ RweaveT2tOptions <- function(options)
     NUMOPTS <- c("width", "height", "res")
     NOLOGOPTS <- c(NUMOPTS, "ext", "results", "prefix.string",
                    "engine", "label", "strip.white",
-                   "pdf.version", "pdf.encoding", "pointsize")
+                   "pdf.version", "pdf.encoding", "pointsize", "begin", "end")
 
     for(opt in names(options)){
         if(! (opt %in% NOLOGOPTS)){
@@ -430,7 +493,10 @@ RweaveT2tOptions <- function(options)
     options
 }
 
-
+##' RweaveChunkPrefix
+##'
+##' @param options options
+##' @keywords internal
 RweaveChunkPrefix <- function(options)
 {
     if(!is.null(options$label)){
@@ -448,6 +514,11 @@ RweaveChunkPrefix <- function(options)
     return(chunkprefix)
 }
 
+##' RweaveEvalWithOpt
+##' 
+##' @param expr expr
+##' @param options options
+##' @keywords internal
 RweaveEvalWithOpt <- function (expr, options){
     if(options$eval){
         res <- try(.Internal(eval.with.vis(expr, .GlobalEnv, baseenv())),
@@ -459,7 +530,11 @@ RweaveEvalWithOpt <- function (expr, options){
     return(res)
 }
 
-
+##' RweaveTryStop
+##'
+##' @param err err
+##' @param options options
+##' @keywords internal
 RweaveTryStop <- function(err, options){
 
     if(inherits(err, "try-error")){
@@ -478,6 +553,9 @@ RweaveTryStop <- function(err, options){
 
 ###**********************************************************
 
+##' RtangleT2t
+##'
+##' @keywords internal
 RtangleT2t <-  function()
 {
     list(setup = RtangleT2tSetup,
@@ -487,7 +565,16 @@ RtangleT2t <-  function()
          checkopts = RweaveT2tOptions)
 }
 
-
+##' RtangleT2tSetup
+##'
+##' @param file file
+##' @param syntax syntax
+##' @param output output
+##' @param annotate annotate
+##' @param split split
+##' @param prefix prefix
+##' @param quiet quiet
+##' @keywords internal
 RtangleT2tSetup <- function(file, syntax,
                          output=NULL, annotate=TRUE, split=FALSE,
                          prefix=TRUE, quiet=FALSE)
@@ -519,7 +606,12 @@ RtangleT2tSetup <- function(file, syntax,
          chunkout=list(), quiet=quiet, syntax=syntax)
 }
 
-
+##' RtangleT2tRuncode
+##'
+##' @param object object
+##' @param chunk chunk
+##' @param options options
+##' @keywords internal
 RtangleT2tRuncode <-  function(object, chunk, options)
 {
     if(!(options$engine %in% c("R", "S"))){
@@ -568,6 +660,11 @@ RtangleT2tRuncode <-  function(object, chunk, options)
     return(object)
 }
 
+##' RtangleT2tWritedoc
+##'
+##' @param object object
+##' @param chunk chunk
+##' @keywords internal
 RtangleT2tWritedoc <- function(object, chunk)
 {
     while(length(pos <- grep(object$syntax$docopt, chunk)))
@@ -581,7 +678,11 @@ RtangleT2tWritedoc <- function(object, chunk)
     return(object)
 }
 
-
+##' RtangleT2tFinish
+##'
+##' @param object object
+##' @param error error
+##' @keywords internal
 RtangleT2tFinish <- function(object, error=FALSE)
 {
     if(!is.null(object$output))

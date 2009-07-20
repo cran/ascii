@@ -1,3 +1,7 @@
+##' A driver to parse org noweb files with Sweave tool - cacheSweave based
+##'
+##' @export
+##' @author David Hajage
 cacheSweaveOrg <- function()
 {
     require(cacheSweave)
@@ -8,6 +12,10 @@ cacheSweaveOrg <- function()
          checkopts = RweaveOrgOptions)
 }
 
+##' A driver to parse org noweb files with Sweave tool - cacheSweave based
+##'
+##' @keywords internal
+##' @author David Hajage
 cacheSweaveOrgSetup <-
     function(file, syntax, output=NULL, quiet=FALSE, debug=FALSE,
              stylepath, ...)
@@ -30,7 +38,7 @@ cacheSweaveOrgSetup <-
                     split=FALSE, strip.white="true", include=TRUE,
                     pdf.version=grDevices::pdf.options()$version,
                     pdf.encoding=grDevices::pdf.options()$encoding,
-                    concordance=FALSE, expand=TRUE, cache = FALSE)
+                    concordance=FALSE, expand=TRUE, begin = "#+BEGIN_SRC R-transcript\n", end = "#+END_SRC\n", cache = FALSE)
     options[names(dots)] <- dots
 
     ## to be on the safe side: see if defaults pass the check
@@ -42,6 +50,10 @@ cacheSweaveOrgSetup <-
          srcfile=srcfile(file))
 }
 
+##' A driver to parse org noweb files with Sweave tool - cacheSweave based
+##'
+##' @keywords internal
+##' @author David Hajage
 makeCacheRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 {
     ## Return a function suitable as the 'runcode' element
@@ -143,7 +155,7 @@ makeCacheRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                 if(options$echo && length(dce)){
                     if(!openSinput){
                         if(!openSchunk){
-                            cat("#+BEGIN_SRC R-transcript\n",
+                            cat(options$begin,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1] <- srcline
                             thisline <- thisline + 1
@@ -198,7 +210,7 @@ makeCacheRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                     }
                     if(options$results=="verbatim"){
                         if(!openSchunk){
-                            cat("#+BEGIN_SRC R-transcript\n",
+                            cat(options$begin,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -218,7 +230,7 @@ makeCacheRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                             openSchunk <- TRUE
                         }
                         if(openSchunk){
-                            cat("#+END_SRC\n",
+                            cat(options$end,
                                 file=chunkout, append=TRUE)
                             linesout[thisline + 1L] <- srcline
                             thisline <- thisline + 1L
@@ -257,7 +269,7 @@ makeCacheRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
           }
 
           if(openSchunk){
-              cat("#+END_SRC\n", file=chunkout, append=TRUE)
+              cat(options$end, file=chunkout, append=TRUE)
               linesout[thisline + 1L] <- srcline
               thisline <- thisline + 1L
           }
@@ -324,4 +336,8 @@ makeCacheRweaveOrgCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
     RweaveOrgRuncode
 }
 
+##' A driver to parse org noweb files with Sweave tool - cacheSweave based
+##'
+##' @keywords internal
+##' @author David Hajage
 cacheSweaveOrgRuncode <- makeCacheRweaveOrgCodeRunner()
