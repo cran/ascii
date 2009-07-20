@@ -146,17 +146,20 @@ asciiList <- proto(expr = {
 })
 
 asciiMixed <- proto(expr = {
-  new <- function(.,
-    ...) {
+  new <- function(., ...) {
     args <- list(...)
     noms <- as.character(as.list(substitute(list(...)))[-1])
-    if (is.null(noms)) noms <- paste("obj", 1:length(args), sep = "")
+    if (is.null(noms))
+      noms <- paste("obj", 1:length(args), sep = "")
+    else
+      noms <- paste(paste("obj", 1:length(args), sep = ""), noms, sep = ": ")
     names(args) <- noms 
     as.proto(args)
   }
 
   show.asciidoc <- function(.) {
-    args <- rev(as.list(.))
+    args <- as.list(.)
+    args <- args[sort(names(args))]
     for (i in seq_along(args)) {
       if (is.null(args[[i]])) next
       print(args[[i]], type = "asciidoc") 
@@ -166,6 +169,7 @@ asciiMixed <- proto(expr = {
   
   show.rest <- function(.) {
     args <- rev(as.list(.))
+    args <- args[sort(names(args))]
     for (i in seq_along(args)) {
       if (is.null(args[[i]])) next
       print(args[[i]], type = "rest") 
@@ -175,6 +179,7 @@ asciiMixed <- proto(expr = {
 
   show.org <- function(.) {
     args <- rev(as.list(.))
+    args <- args[sort(names(args))]
     for (i in seq_along(args)) {
       if (is.null(args[[i]])) next
       print(args[[i]], type = "org") 
@@ -184,6 +189,7 @@ asciiMixed <- proto(expr = {
 
   show.t2t <- function(.) {
     args <- rev(as.list(.))
+    args <- args[sort(names(args))]
     for (i in seq_along(args)) {
       if (is.null(args[[i]])) next
       print(args[[i]], type = "t2t")
@@ -193,6 +199,7 @@ asciiMixed <- proto(expr = {
 
   show.textile <- function(.) {
     args <- rev(as.list(.))
+    args <- args[sort(names(args))]
     for (i in seq_along(args)) {
       if (is.null(args[[i]])) next
       print(args[[i]], type = "textile")
@@ -202,6 +209,7 @@ asciiMixed <- proto(expr = {
 
   show.pandoc <- function(.) {
     args <- rev(as.list(.))
+    args <- args[sort(names(args))]
     for (i in seq_along(args)) {
       if (is.null(args[[i]])) next
       print(args[[i]], type = "pandoc")
