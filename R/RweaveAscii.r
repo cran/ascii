@@ -162,7 +162,7 @@ makeRweaveAsciiCodeRunner <- function(evalFunc = RweaveEvalWithOpt)
                 chunkout <- file(paste(chunkprefix, object$extension, sep = "."), "w")
                 if (!is.null(options$label))
                     object$chunkout[[chunkprefix]] <- chunkout
-                if(!grepl(utils:::.SweaveValidFilenameRegexp, chunkout))
+                if(!grepl(.SweaveValidFilenameRegexp, chunkout))
                     warning("file name ", sQuote(chunkout), " is not portable",
                             call. = FALSE, domain = NA)
             }
@@ -244,7 +244,7 @@ makeRweaveAsciiCodeRunner <- function(evalFunc = RweaveEvalWithOpt)
         srcrefs <- attr(chunkexps, "srcref")
 
         if (length(devs)) {
-            if(!grepl(utils:::.SweaveValidFilenameRegexp, chunkprefix))
+            if(!grepl(.SweaveValidFilenameRegexp, chunkprefix))
                 warning("file name ", sQuote(chunkprefix), " is not portable",
                         call. = FALSE, domain = NA)
             if (options$figs.only)
@@ -489,7 +489,7 @@ RweaveAsciiWritedoc <- function(object, chunk)
     {
         opts <- sub(paste(".*", object$syntax$docopt, ".*", sep = ""),
                     "\\1", chunk[pos[1L]])
-        object$options <- utils:::SweaveParseOptions(opts, object$options,
+        object$options <- SweaveParseOptions(opts, object$options,
                                              RweaveAsciiOptions)
 
         ## if (isTRUE(object$options$concordance)
@@ -633,10 +633,10 @@ RweaveAsciiOptions <- function(options)
 ##' @export
 RtangleAscii <-  function()
 {
-    list(setup = utils:::RtangleSetup,
-         runcode = utils:::RtangleRuncode,
+    list(setup = utils::RtangleSetup,
+         runcode = RtangleRuncode,
          writedoc = RtangleAsciiWritedoc,
-         finish = utils:::RtangleFinish,
+         finish = RtangleFinish,
          checkopts = RweaveAsciiOptions)
 }
 
@@ -649,7 +649,7 @@ RtangleAsciiWritedoc <- function(object, chunk)
     while(length(pos <- grep(object$syntax$docopt, chunk))) {
         opts <- sub(paste(".*", object$syntax$docopt, ".*", sep = ""),
                     "\\1", chunk[pos[1L]])
-        object$options <- utils:::SweaveParseOptions(opts, object$options,
+        object$options <- SweaveParseOptions(opts, object$options,
                                              RweaveAsciiOptions)
         chunk[pos[1L]] <- sub(object$syntax$docopt, "", chunk[pos[1L]])
     }
@@ -665,7 +665,7 @@ RtangleAsciiWritedoc <- function(object, chunk)
 ##'
 ##' @aliases RweaveAsciidoc RtangleAsciidoc RweaveAsciidocOptions
 ##'   RweaveAsciidocFinish RweaveAsciidocWritedoc RweaveAsciidocSetup
-##'   RweaveAsciidocRuncode cacheSweaveAsciidoc weaverAsciidoc
+##'   RweaveAsciidocRuncode weaverAsciidoc
 ##' @return None value is returned. From a .Rnw noweb file, the corresponding
 ##'   .txt is produced (as eventuals files for graphs).
 ##' @note In order to work properly, noweb codes have to be located at the
@@ -675,19 +675,17 @@ RtangleAsciiWritedoc <- function(object, chunk)
 ##'   \code{format} to choose the format of figure that will be inserted in the
 ##'   final document.
 ##'
-##' In addition, \code{cache} option from \code{cacheSweave} or \code{weaver}
-##'   package is also available with \code{cacheSweaveAsciidoc} driver and
-##'   \code{weaverAsciidoc} driver.
+##' In addition, \code{cache} option from \code{weaver}
+##'   package is also available with \code{weaverAsciidoc} driver.
 ##'
 ##' A wrapper for \code{Sweave} can be used, named \code{Asciidoc}.
 ##' @author David Hajage \email{dhajage@@gmail.com}
-##' @seealso \code{\link[utils]{Sweave}}, \code{\link[ascii]{Asciidoc}}
+##' @seealso \code{\link[utils]{Sweave}}, \code{\link{Asciidoc}}
 ##' @keywords IO file
 ##' @export
 ##' @rdname RweaveAsciidoc
 ##' @examples
 ##'   \dontrun{
-##' library(ascii)
 ##' Asciidoc("file.Rnw")
 ##'   }
 ##'
@@ -706,7 +704,7 @@ RweaveAsciidoc <- function()
 ##'
 ##'
 ##' @aliases RweaveT2t RtangleT2t RweaveT2tOptions RweaveT2tFinish
-##'   RweaveT2tWritedoc RweaveT2tSetup RweaveT2tRuncode cacheSweaveT2t
+##'   RweaveT2tWritedoc RweaveT2tSetup RweaveT2tRuncode
 ##'   weaverT2t
 ##' @return None value is returned. From a .Rnw noweb file, the corresponding
 ##'   .t2t is produced (as eventuals files for graphs).
@@ -717,19 +715,17 @@ RweaveAsciidoc <- function()
 ##'   \code{format} to choose the format of figure that will be inserted in the
 ##'   final document.
 ##'
-##' In addition, \code{cache} option from \code{cacheSweave} or \code{weaver}
-##'   package is also available with \code{cacheSweaveT2t} driver and
-##'   \code{weaverT2t} driver.
+##' In addition, \code{cache} option from \code{weaver}
+##'   package is also available with \code{weaverT2t} driver.
 ##'
 ##' A wrapper for \code{Sweave} can be used, named \code{T2t}.
 ##' @author David Hajage \email{dhajage@@gmail.com}
-##' @seealso \code{\link[utils]{Sweave}}, \code{\link[ascii]{T2t}}
+##' @seealso \code{\link[utils]{Sweave}}, \code{\link{T2t}}
 ##' @keywords IO file
 ##' @export
 ##' @rdname RweaveT2t
 ##' @examples
 ##'   \dontrun{
-##' library(ascii)
 ##' T2t("file.Rnw")
 ##'   }
 ##'
@@ -766,7 +762,7 @@ formals(RweaveT2tSetup) <-alist(file=, syntax=, output=NULL, quiet=FALSE, debug=
 ##'
 ##'
 ##' @aliases RweaveOrg RtangleOrg RweaveOrgOptions RweaveOrgFinish
-##'   RweaveOrgWritedoc RweaveOrgSetup RweaveOrgRuncode cacheSweaveOrg
+##'   RweaveOrgWritedoc RweaveOrgSetup RweaveOrgRuncode 
 ##'   weaverOrg
 ##' @return None value is returned. From a .Rnw noweb file, the corresponding
 ##'   .org is produced (as eventuals files for graphs).
@@ -777,19 +773,17 @@ formals(RweaveT2tSetup) <-alist(file=, syntax=, output=NULL, quiet=FALSE, debug=
 ##'   \code{format} to choose the format of figure that will be inserted in the
 ##'   final document.
 ##'
-##' In addition, \code{cache} option from \code{cacheSweave} or \code{weaver}
-##'   package is also available with \code{cacheSweaveOrg} driver and
-##'   \code{weaverOrg} driver.
+##' In addition, \code{cache} option from \code{weaver}
+##'   package is also available with \code{weaverOrg} driver.
 ##'
 ##' A wrapper for \code{Sweave} can be used, named \code{Org}.
 ##' @author David Hajage \email{dhajage@@gmail.com}
-##' @seealso \code{\link[utils]{Sweave}}, \code{\link[ascii]{Org}}
+##' @seealso \code{\link[utils]{Sweave}}, \code{\link{Org}}
 ##' @keywords IO file
 ##' @export
 ##' @rdname RweaveOrg
 ##' @examples
 ##'   \dontrun{
-##' library(ascii)
 ##' Org("file.Rnw")
 ##'   }
 ##'
@@ -815,8 +809,8 @@ RweaveOrg <- function()
 ##' @keywords internal
 RweaveOrgSetup <- RweaveAsciiSetup
 formals(RweaveOrgSetup) <-alist(file=, syntax=, output=NULL, quiet=FALSE, debug=FALSE,
-                                extension="org", backend="org-mode", openSchunk="#+BEGIN_SRC R-transcript",
-                                closeSchunk="\n#+END_SRC\n", openSinput="", closeSinput="",
+                                extension="org", backend="org-mode", openSchunk="#+BEGIN_example",
+                                closeSchunk="\n#+END_example\n", openSinput="", closeSinput="",
                                 openSoutput="\n", closeSoutput="", indent="", openInclude ="#+INCLUDE: \"",
                                 closeInclude=".org\"", openFig="[[file:", closeFig="]]", ...=)
 
@@ -826,7 +820,7 @@ formals(RweaveOrgSetup) <-alist(file=, syntax=, output=NULL, quiet=FALSE, debug=
 ##'
 ##'
 ##' @aliases RweavePandoc RtanglePandoc RweavePandocOptions RweavePandocFinish
-##'   RweavePandocWritedoc RweavePandocSetup RweavePandocRuncode cacheSweavePandoc
+##'   RweavePandocWritedoc RweavePandocSetup RweavePandocRuncode 
 ##'   weaverPandoc
 ##' @return None value is returned. From a .Rnw noweb file, the corresponding
 ##'   .md is produced (as eventuals files for graphs).
@@ -837,19 +831,17 @@ formals(RweaveOrgSetup) <-alist(file=, syntax=, output=NULL, quiet=FALSE, debug=
 ##'   \code{format} to choose the format of figure that will be inserted in the
 ##'   final document.
 ##'
-##' In addition, \code{cache} option from \code{cacheSweave} or \code{weaver}
-##'   package is also available with \code{cacheSweavePandoc} driver and
-##'   \code{weaverPandoc} driver.
+##' In addition, \code{cache} option from \code{weaver}
+##'   package is also available with \code{weaverPandoc} driver.
 ##'
 ##' A wrapper for \code{Sweave} can be used, named \code{Pandoc}.
 ##' @author David Hajage \email{dhajage@@gmail.com} Matti Pastell \email{matti.pastell@@helsinki.fi}
-##' @seealso \code{\link[utils]{Sweave}}, \code{\link[ascii]{Pandoc}}
+##' @seealso \code{\link[utils]{Sweave}}, \code{\link{Pandoc}}
 ##' @keywords IO file
 ##' @export
 ##' @rdname RweavePandoc
 ##' @examples
 ##'   \dontrun{
-##' library(ascii)
 ##' Pandoc("file.Rnw")
 ##'   }
 ##'
@@ -887,7 +879,7 @@ formals(RweavePandocSetup) <-alist(file=, syntax=, output=NULL, quiet=FALSE, deb
 ##'
 ##' @aliases RweaveTextile RtangleTextile RweaveTextileOptions
 ##'   RweaveTextileFinish RweaveTextileWritedoc RweaveTextileSetup
-##'   RweaveTextileRuncode cacheSweaveTextile weaverTextile
+##'   RweaveTextileRuncode weaverTextile
 ##' @return None value is returned. From a .Rnw noweb file, the corresponding
 ##'   .txt is produced (as eventuals files for graphs).
 ##' @note In order to work properly, noweb codes have to be located at the
@@ -897,19 +889,17 @@ formals(RweavePandocSetup) <-alist(file=, syntax=, output=NULL, quiet=FALSE, deb
 ##'   \code{format} to choose the format of figure that will be inserted in the
 ##'   final document.
 ##'
-##' In addition, \code{cache} option from \code{cacheSweave} or \code{weaver}
-##'   package is also available with \code{cacheSweaveTextile} driver and
-##'   \code{weaverTextile} driver.
+##' In addition, \code{cache} option from \code{weaver}
+##'   package is also available with \code{weaverTextile} driver.
 ##'
 ##' A wrapper for \code{Sweave} can be used, named \code{Textile}.
 ##' @author David Hajage \email{dhajage@@gmail.com}
-##' @seealso \code{\link[utils]{Sweave}}, \code{\link[ascii]{Textile}}
+##' @seealso \code{\link[utils]{Sweave}}, \code{\link{Textile}}
 ##' @keywords IO file
 ##' @export
 ##' @rdname RweaveTextile
 ##' @examples
 ##'   \dontrun{
-##' library(ascii)
 ##' Textile("file.Rnw")
 ##'   }
 ##'
@@ -946,7 +936,7 @@ formals(RweaveTextileSetup) <-alist(file=, syntax=, output=NULL, quiet=FALSE, de
 ##'
 ##'
 ##' @aliases RweaveReST RtangleReST RweaveReSTOptions RweaveReSTFinish
-##'   RweaveReSTWritedoc RweaveReSTSetup RweaveReSTRuncode cacheSweaveReST
+##'   RweaveReSTWritedoc RweaveReSTSetup RweaveReSTRuncode 
 ##'   weaverReST
 ##' @return None value is returned. From a .Rnw noweb file, the corresponding
 ##'   .rst is produced (as eventuals files for graphs).
@@ -957,19 +947,17 @@ formals(RweaveTextileSetup) <-alist(file=, syntax=, output=NULL, quiet=FALSE, de
 ##'   \code{format} to choose the format of figure that will be inserted in the
 ##'   final document.
 ##'
-##' In addition, \code{cache} option from \code{cacheSweave} or \code{weaver}
-##'   package is also available with \code{cacheSweaveReST} driver and
-##'   \code{weaverReST} driver.
+##' In addition, \code{cache} option from \code{weaver}
+##'   package is also available with \code{weaverReST} driver.
 ##'
 ##' A wrapper for \code{Sweave} can be used, named \code{ReST}.
 ##' @author David Hajage \email{dhajage@@gmail.com}
-##' @seealso \code{\link[utils]{Sweave}}, \code{\link[ascii]{ReST}}
+##' @seealso \code{\link[utils]{Sweave}}, \code{\link{ReST}}
 ##' @keywords IO file
 ##' @export
 ##' @rdname RweaveReST
 ##' @examples
 ##'   \dontrun{
-##' library(ascii)
 ##' ReST("file.Rnw")
 ##'   }
 ##'

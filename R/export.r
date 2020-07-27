@@ -57,7 +57,7 @@ asciiOpts <- function(select = "all", .backends = NULL, .outputs = NULL, .extens
       a2x = c("a2x %options", paste(Sys.getenv("COMSPEC"), "/c", "a2x.py %options"), "bash -c \"a2x %options \""),
       t2t = c("txt2tags %options", paste(Sys.getenv("COMSPEC"), "/c", "txt2tags.py %options"), "bash -c \"txt2tags %options \""),
       pandoc = c("pandoc %options", paste(Sys.getenv("COMSPEC"), "/c", "pandoc %options"), "bash -c \"pandoc %options \""),
-      markdown2pdf = c("markdown2pdf %options", paste(Sys.getenv("COMSPEC"), "/c", "markdown2pdf %options"), "bash -c \"markdown2pdf %options \""))
+      markdown2pdf = c("pandoc %options", paste(Sys.getenv("COMSPEC"), "/c", "pandoc %options"), "bash -c \"pandoc %options \""))
   }
 
   if (is.null(.args)) {
@@ -66,7 +66,7 @@ asciiOpts <- function(select = "all", .backends = NULL, .outputs = NULL, .extens
       a2x = "-a encoding=%e -D %d -f %f %O %i",
       t2t = "--encoding=%e -t %f %O -o %d/%o %i",
       pandoc = "-t %f -o %d/%o %O %i",
-      markdown2pdf = "-o %d/%o %O %i")
+      markdown2pdf = "-t latex -o %d/%o %O %i")
   }
 
   if (is.null(.O)) {
@@ -386,7 +386,7 @@ print.sexpr <- function(x, ...) {
 ##' @export
 ##' @author David Hajage
 out <- function(x, results = "verbatim") {
-  results <- list(x, results)
+  results <- list(capture.output(x), results = "verbatim")
   class(results) <- "out"
   results
 }
@@ -411,7 +411,7 @@ print.out <- function(x, backend = getOption("asciiBackend"), ...) {
     if (backend == "pandoc" | backend == "markdown2pdf")
       cat("\n~~~~~~~{.R}\n")
   }
-  print(x[[1]], ...)
+  cat(x[[1]], sep = "\n")
   if (results == "verbatim") {
     if (backend == "asciidoc" | backend == "a2x")
       cat("----\n\n")
@@ -461,13 +461,13 @@ fig <- function(file = NULL, graph = NULL, format = NULL, ...) {
 
   if (!is.null(graph)) {
     if (format == "jpg") {
-      jpeg(file, ...)
+      grDevices::jpeg(file, ...)
     }
     if (format == "png") {
-      png(file, ...)
+      grDevices::png(file, ...)
     }
     if (format == "pdf") {
-      pdf(file, ...)
+      grDevices::pdf(file, ...)
     }
     if (is.expression(graph)) {
       eval(graph)
@@ -475,7 +475,7 @@ fig <- function(file = NULL, graph = NULL, format = NULL, ...) {
     else {
       print(graph)
     }
-    dev.off()
+    grDevices::dev.off()
   }
 
   results <- file
@@ -522,7 +522,7 @@ print.fig <- function(x, backend = getOption("asciiBackend"), ...) {
 ##' \code{Report$addVerbatim()}, \code{Report$addFig()}.
 ##'
 ##' It needs a working installation of asciidoc, a2x tool chain,
-##' txt2tags, pandoc and/or markdown2pdf.
+##' txt2tags and/or pandoc (NB: markdown2pdf uses pandoc with latex).
 ##'
 ##' @aliases Report
 ##' @title Report creation
@@ -541,11 +541,12 @@ print.fig <- function(x, backend = getOption("asciiBackend"), ...) {
 ##' @param date date
 ##' @return Nothing
 ##' @export
+##' @import methods
 ##' @rdname createreport
 ##' @author David Hajage
 ##' @examples
 ##' \dontrun{
-##' options(asciiType = "asciidoc")
+##' op <- options(asciiType = "asciidoc")
 ##' createreport(head(esoph))
 ##'
 ##' r <- Report$new(author = "David Hajage", email = "dhajage at gmail dot com")
@@ -557,7 +558,7 @@ print.fig <- function(x, backend = getOption("asciiBackend"), ...) {
 ##' r$add(ascii(tab), ascii(summary(tab), format = "nice"))
 ##' r$create()
 ##' r$format <- "slidy"
-##' r$createt()
+##' r$create()
 ##'
 ##' r$title <- "R report example"
 ##' r$author <- "David Hajage"
@@ -568,6 +569,7 @@ print.fig <- function(x, backend = getOption("asciiBackend"), ...) {
 ##' r$create()
 ##'
 ##' r$create(backend = "markdown2pdf", format = "pdf")
+##' options(op)
 ##' }
 createreport <- function(..., list = NULL, file = NULL, format = NULL, open = TRUE, backend = getOption("asciiBackend"), encoding = NULL, options = NULL, cygwin = FALSE, title = NULL, author = NULL, email = NULL, date = NULL) {
 
@@ -651,7 +653,9 @@ createreport <- function(..., list = NULL, file = NULL, format = NULL, open = TR
 ##'
 ##' @author David Hajage
 ##' @rdname createreport
-##' @export
+##' @import methods
+##' @export Report
+##' @exportClass Report
 Report <- setRefClass("Report",
                       fields = c("file", "format", "open", "backend", "encoding", "options", "cygwin", "title", "author", "email", "date", "objects"),
 

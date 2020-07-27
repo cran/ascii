@@ -1,4 +1,9 @@
+##' @rdname ascii
 ##' @export
+##' @examples
+##' op <- options(asciiType = "org")
+##' ascii(list(a=1,b=2), list.type="label")
+##' options(op)
 ##' @method ascii list
 ascii.list <- function(x, caption = NULL, caption.level = NULL, list.type = "bullet", ...) {
     obj <- asciiList$new(x = x, caption = caption, caption.level = caption.level, list.type = list.type)
@@ -13,7 +18,12 @@ ascii.simple.list <- function(x, caption = NULL, caption.level = NULL, list.type
     return(obj)
 }
 
+##' @rdname ascii
 ##' @export
+##' @examples
+##' op <- options(asciiType = "org")
+##' ascii(sessionInfo())
+##' options(op)
 ##' @method ascii packageDescription
 ascii.packageDescription <- function(x, caption = NULL, caption.level = NULL, list.type = "label", ...) {
   x <- unclass(x)

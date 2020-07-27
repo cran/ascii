@@ -1,4 +1,9 @@
+##' @rdname ascii
 ##' @export
+##' @examples
+##' op <- options(asciiType = "org")
+##' local({x <- rnorm(100); ascii(t.test(x))})
+##' options(op)
 ##' @method ascii htest
 ascii.htest <- function(x, include.rownames = TRUE, include.colnames = TRUE, rownames = NULL, colnames = NULL, format = "f", digits = 2, decimal.mark = ".", na.print = "", caption = NULL, caption.level = NULL, width = 0, frame = NULL, grid = NULL, valign = NULL, header = TRUE, footer = FALSE, align = NULL, col.width = 1, style = NULL, tgroup = NULL, n.tgroup = NULL, talign = "c", tvalign = "middle", tstyle = "h", bgroup = NULL, n.bgroup = NULL, balign = "c", bvalign = "middle", bstyle = "h", lgroup = NULL, n.lgroup = NULL, lalign = "c", lvalign = "middle", lstyle = "h", rgroup = NULL, n.rgroup = NULL, ralign = "c", rvalign = "middle", rstyle = "h", ...){
   if (x$method == "Fisher's Exact Test for Count Data") {
@@ -8,6 +13,14 @@ ascii.htest <- function(x, include.rownames = TRUE, include.colnames = TRUE, row
   if (x$method == "Pearson's Chi-squared test with Yates' continuity correction" | x$method == "Pearson's Chi-squared test" | x$method == "Chi-squared test for given probabilities"){
     res <- cbind(x$statistic, x$parameter, x$p.value)
     colnames(res) <- c("X-squared", "df", "p-value")
+  }
+  if (x$method == "One Sample t-test"){
+    res <- cbind(x$statistic, x$parameter, x$p.value, x$conf.int[1], x$conf.int[2], x$estimate)
+    colnames(res) <- c("t-statistic", "df", "p-value", "lower .95", "upper .95", "mean")
+  }
+  if (x$method == "Welch Two Sample t-test"){
+    res <- cbind(x$statistic, x$parameter, x$p.value, x$conf.int[1], x$conf.int[2], x$estimate[1], x$estimate[2])
+    colnames(res) <- c("t-statistic", "df", "p-value", "lower .95", "upper .95", "mean of x", "mean of y")
   }
   ascii(res, include.rownames = include.rownames,
          include.colnames = include.colnames, rownames = rownames, colnames = colnames,
