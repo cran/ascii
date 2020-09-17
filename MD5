@@ -1,5 +1,5 @@
-a0a7853889d08f406bd335a398241c34 *DESCRIPTION
-f9a3dc2000c0ab8e2c0bb42a8139aa29 *NAMESPACE
+85072ccb04de650a5e3ee224395902d8 *DESCRIPTION
+63e9d35fceec19f06c9a6658d227fc8b *NAMESPACE
 ffe40222f78fbfc7d90a6014e2b52ed9 *NEWS
 217a471365a6f41422c32be7f29422d9 *R/RweaveAscii.r
 68aa66392066d48f80099a468384c03d *R/SweaveAscii.r
@@ -22,7 +22,7 @@ c6b4475182f8e9634be3fb69002f52bd *R/asciiSmoothSpline.r
 72993aab91fbf1ba8fa109c68b2c683e *R/asciiSurvival.r
 6d9cca5df8f5bc4d4efcdd471c59831c *R/asciiTable.r
 52593e8c8418f63e06004c70c2c0b8ce *R/asciiTs.r
-abf93614e2fc71d9ce89493bfb4b6f05 *R/asciiVector.r
+117464928f8033c5e5ef2072a07fa740 *R/asciiVector.r
 dbab9b0d1bdb173857bae07fdc0e8ab9 *R/bind.r
 6210fce44777da994cc4998e597d606c *R/cache_expr.R
 4697abf8793974cf5c4053d409b13ab7 *R/cbind.r
@@ -32,8 +32,8 @@ dbab9b0d1bdb173857bae07fdc0e8ab9 *R/bind.r
 36b644acf635260ca3494460893a9b49 *R/interleave.r
 681b8e1ab0d58fd518e687113b5fdb78 *R/paste.matrix.r
 a244c53bfeecc9b0d4b415a6a4620ad2 *R/plim.r
-a9e347eeb50a02f0f864abf5aee6a92b *R/print.character.matrix.r
-6ed01d955b137b847fbc091e8c88a774 *R/print.r
+7bbe5a43862e76211e6080fc4906cacd *R/print.character.matrix.r
+0237b6c05b69b4b9bb0d2a17a4176d91 *R/print.r
 a678b9c47a35dddbeafc65464ff2059a *R/show.asciidoc.r
 e68e536872d5ad551d459dd503e02d2a *R/show.org.r
 a6969b9bc63e23fc43591fa439c2eff4 *R/show.pandoc.r
@@ -42,7 +42,7 @@ d102771f8bc88b7107787453393d6376 *R/show.r
 c47b6d75bd6bab51d0f65219cdd1eb8f *R/show.t2t.r
 2791a398436bbe8f69731bf4e84bb5a4 *R/show.textile.r
 69af333a6eee5eb9f48bc319f1b28466 *R/tocharac.r
-6486ef6c01facb4db72054d8cd928716 *R/unexported.R
+e25abad832f31042b9f7b8c200a13dc5 *R/unexported.R
 c213a8b1ff38ffbad6da8824a61b0b92 *R/weaver.R
 6b92818fa9f2fab34037c8d00db0ffe6 *R/weaverAscii.r
 273508e7f583a116ba0ace7788b24a58 *R/zzz.r
@@ -64,7 +64,7 @@ c86812dbea01320cb3041c44822b766a *man/RweavePandoc.Rd
 9f1bd36e136646e19dc2de140cc83a90 *man/RweaveTextile.Rd
 219a5e84719241739742631492f50940 *man/align.table.Rd
 b63008b4c0adfaad3fcdbacb31a1054c *man/as.list.matrix.Rd
-63e7afe678bc23f663d40abba27d4ac7 *man/ascii.Rd
+bccf49cdb9f1f171da84907d4233b030 *man/ascii.Rd
 1012bf164c839689ccdbc4025aeefaf5 *man/asciiCbind-class.Rd
 a3fc172795028997393dbeef0a27a214 *man/asciiList-class.Rd
 76f4178581649696e888dcc769bab082 *man/asciiMixed-class.Rd
@@ -106,7 +106,7 @@ eb334445eb851ed31b073d1265b6fffb *man/paragraph.Rd
 b2a03dacd31e8ae68439d4eef4a37753 *man/paste.matrix.Rd
 685b7204721b9eb0cfe06de7abebe066 *man/plim.Rd
 5bf42a26f59a48f4111388aa3d9427b4 *man/print-ascii.Rd
-d4d88e4292c034e5c9335bc4e1ffd0f0 *man/print.character.matrix.Rd
+3638d368bb03d21fce7bcb7b265037a7 *man/print.character.matrix.Rd
 198feded8f09ed22b2e2e822690cf832 *man/print.fig.Rd
 194e86e86e9be2188ca4284e3fb659c3 *man/print.out.Rd
 6fd063c60378f067a4e9fbfc50cd3ef7 *man/print.paragraph.Rd
