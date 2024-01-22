@@ -8,12 +8,12 @@ div <- function(x, n = 2) {
   c(xx, x - xx)
 }
 
-##' rep.char
+##' repchar
 ##'
 ##' @keywords internal
 ##' @param x x
 ##' @param times times
-rep.char <- function(x, times = 1) {
+repchar <- function(x, times = 1) {
   paste(rep(x, times), collapse = "")
 }
 
@@ -98,7 +98,7 @@ print.character.matrix <- function(x, vsep = "|", before_vsep = "", after_vsep =
   row_lines <- NULL
   if (line_separator) {
     hseps <- expand(hsep, nrowx+1, ncolx)
-    hseps <- t(apply(hseps, 1, function(x) Vectorize(rep.char, c("x", "times"))(x, nchartotmax)))
+    hseps <- t(apply(hseps, 1, function(x) Vectorize(repchar, c("x", "times"))(x, nchartotmax)))
     if (ncolx == 1)
       hseps <- t(hseps)
     cseps <- expand(csep, nrowx+1, ncolx+1)

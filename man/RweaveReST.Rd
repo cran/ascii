@@ -24,16 +24,16 @@ RweaveReSTSetup(
   debug = FALSE,
   extension = "rst",
   backend = "docutils, sphinx, ...",
-  openSchunk = ".. code-block:: r\\n",
+  openSchunk = "\\n.. code-block:: r\\n",
   closeSchunk = "\\n\\n",
   openSinput = "",
   closeSinput = "",
-  openSoutput = "\\n",
-  closeSoutput = "",
+  openSoutput = "\\n\\n",
+  closeSoutput = "\\n",
   indent = "  ",
   openInclude = ".. include::",
   closeInclude = ".rst",
-  openFig = ".. image:: ",
+  openFig = ".. figure:: ",
   closeFig = "",
   ...
 )
@@ -46,16 +46,16 @@ weaverReSTSetup(
   debug = FALSE,
   extension = "rst",
   backend = "docutils, sphinx, ...",
-  openSchunk = ".. code-block:: r\\n",
+  openSchunk = "\\n.. code-block:: r\\n",
   closeSchunk = "\\n\\n",
   openSinput = "",
   closeSinput = "",
-  openSoutput = "\\n",
-  closeSoutput = "",
+  openSoutput = "\\n\\n",
+  closeSoutput = "\\n",
   indent = "  ",
   openInclude = ".. include::",
   closeInclude = ".rst",
-  openFig = ".. image:: ",
+  openFig = ".. figure:: ",
   closeFig = "",
   use.cache = TRUE,
   ...
@@ -77,8 +77,6 @@ weaverReST()
 \item{...}{...}
 
 \item{use.cache}{use.cache}
-
-\item{stylepath}{stylepath}
 }
 \value{
 None value is returned. From a .Rnw noweb file, the corresponding

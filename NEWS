@@ -1,3 +1,13 @@
+Version 2.6
+-----------
+
+* Add asciiCoefmat, which is similar to printCoefmat. Note that ascii:::escape.org() now replaces * withg \star{} so that the p-value stars can be read in Org Mode. Please provide feedback if this causes any issues.
+
+* Add ascii.microbenchmark.
+
+
+
+
 Version 2.3
 -----------
 

@@ -12,10 +12,10 @@ Authors@R: c(person("David", "Hajage", role="aut", email="dhajage@gmail.com"),
 Description: Coerce R object to 'asciidoc', 'txt2tags',
     'restructuredText', 'org', 'textile' or 'pandoc' syntax.
     Package comes with a set of drivers for 'Sweave'.
-Version: 2.4
+Version: 2.6
 URL: https://github.com/mclements/ascii
 BugReports: https://github.com/mclements/ascii/issues
-Date: 2020-08-18
+Date: 2024-01-22
 Depends: R (>= 2.13), methods
 Imports: utils, digest, codetools, survival, stats, grDevices
 Suggests: Hmisc, xtable, R2HTML, knitr
@@ -31,9 +31,9 @@ Collate: 'asciiAnova.r' 'asciiDataFrame.r' 'asciiDefault.r'
         'show.r' 'show.rest.r' 'show.t2t.r' 'show.textile.r'
         'SweaveAscii.r' 'tocharac.r' 'weaverAscii.r' 'zzz.r' 'print.r'
         'cache_expr.R' 'weaver.R' 'unexported.R'
-RoxygenNote: 7.0.2
+RoxygenNote: 7.2.3
 NeedsCompilation: no
-Packaged: 2020-09-17 12:41:35 UTC; marcle
+Packaged: 2024-01-22 19:25:46 UTC; marcle
 Author: David Hajage [aut],
   Mark Clements [cre, ctb],
   Seth Falcon [ctb],
@@ -41,4 +41,4 @@ Author: David Hajage [aut],
   Matti Pastell [ctb],
   Friedrich Leisch [ctb]
 Repository: CRAN
-Date/Publication: 2020-09-17 13:10:09 UTC
+Date/Publication: 2024-01-22 20:02:57 UTC

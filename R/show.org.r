@@ -57,8 +57,11 @@ header.org <- function(caption = NULL, caption.level = NULL) {
 ##' @keywords internal
 ##' @param x x
 escape.org <- function(x) {
-  xx <- gsub("\\|", " \\\\vert ", x)
-  xx
+  x <- gsub("\\|", "\\\\vert{}", x)
+  x <- gsub("\\*", "\\\\star{}", x) # 
+  ## x <- gsub("\\*", "\u{200b}*\u{200b}", x) # padded with zero-width spaces:)
+  x <- gsub(">", "\\\\gt{}", x)
+  x
 }
 
 

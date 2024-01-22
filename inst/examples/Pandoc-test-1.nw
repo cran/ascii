@@ -1,26 +1,26 @@
-# -*- mode: org; noweb-default-code-mode: R-mode; -*-
+% -*- mode: markdown; noweb-default-code-mode: R-mode; -*-
+% A Test File
+% Friedrich Leisch (adapted by Mark Clements)
 
-#+title: A Test File
-#+author: Friedrich Leisch (adapted by Mark Clements)
 
-#+SETUPFILE: https://fniessen.github.io/org-html-themes/setup/readthedocs.setup
-
-We load the =ascii= package and set the output type as ="org"=.
+We load the `ascii` package and set the output type as `"pandoc"`.
 
 <<echo=TRUE,print=FALSE>>=
 library(ascii)
-options(asciiType="org")
+options(asciiType="pandoc")
 @
 
 A simple example: the integers from 1 to 10 are
+
 <<print=TRUE,results=ascii>>=
 ascii(1:10)
 @
 <<echo=FALSE,results=hide>>=
 print(1:20)
-@ # the above is just to ensure that 2 code chunks can follow each other
+@ // the above is just to ensure that 2 code chunks can follow each other
 
 We can also emulate a simple calculator:
+
 <<echo=TRUE,print=TRUE>>=
 1 + 1
 1 + pi
@@ -36,29 +36,29 @@ ascii(x <- rnorm(20))
 ascii(t1 <- t.test(x))
 @
 Note that we can easily integrate some numbers into standard text: The
-third element of vector =x= is \Sexpr{x[3]}, the
-$p$-value of the test is \Sexpr{format.pval(t1$p.value)}.
+third element of vector `x` is \Sexpr{x[3]}, the
+_p_-value of the test is \Sexpr{format.pval(t1$p.value)}.
 
-Now we look at a summary of the famous =iris= data set, and we
+Now we look at a summary of the famous `iris` data set, and we
 want to see the commands in the code chunks:
 
 <<results=ascii>>=
 data(iris)
-ascii(summary(iris))
-@ #def
+ascii(summary(iris),header=TRUE)
+@ //def
 
-<<fig=TRUE>>=
+<<fig=TRUE,results=ascii>>=
 library(graphics)
 pairs(iris)
 @
 Pairs plot of the iris data.
 
-<<fig=true>>=
+<<fig=true,results=ascii>>=
 boxplot(Sepal.Length~Species, data=iris)
 @
-Boxplot of sepal length grouped by species.
+Boxplot of sepal length grouped by species
 
-Finally, we test the new =asciiCoefmat= function:
+Finally, we test the new `asciiCoefmat` function:
 
 <<results=ascii>>=
 library(stats)
@@ -66,4 +66,3 @@ x = y = 1:10
 y[1] = 5
 lm(y ~ x) |> summary() |> coef() |> asciiCoefmat()
 @
-

@@ -1,0 +1,68 @@
+A Test File
+===========
+Friedrich Leisch (adapted by Mark Clements)
+:toc2:
+:numbered:
+:data-uri:
+
+TIP: We load the `ascii` package and set the output type as `"asciidoc"`.
+// begin.rcode
+library(ascii)
+options(asciiType="asciidoc")
+// end.rcode
+
+A simple example: the integers from 1 to 10 are
+// begin.rcode, results="asis"
+ascii(1:10)
+// end.rcode
+// begin.rcode, include=FALSE
+print(1:20)
+// end.rcode
+// the above is just to ensure that 2 code chunks can follow each other
+
+We can also emulate a simple calculator:
+
+// begin.rcode
+1 + 1
+1 + pi
+sin(pi/2)
+// end.rcode
+
+Now we look at Gaussian data:
+
+// begin.rcode, results="asis"
+library(stats)
+ascii(x <- rnorm(20))
+ascii(t1 <- t.test(x))
+// end.rcode
+Note that we can easily integrate some numbers into standard text: The
+third element of vector `x` is +r x[3]+, the
+_p_-value of the test is +r format.pval(t1$p.value)+.
+
+Now we look at a summary of the famous `iris` data set, and we
+want to see the commands in the code chunks:
+
+// begin.rcode, results="asis"
+data(iris)
+ascii(summary(iris),header=TRUE)
+// end.rcode
+
+// begin.rcode asciidoc-1, fig.cap="Pairs plot of the iris data"
+library(graphics)
+pairs(iris)
+// end.rcode
+
+
+// begin.rcode asciidoc-2, fig.cap="Boxplot of sepal length grouped by species"
+boxplot(Sepal.Length~Species, data=iris)
+// end.rcode
+
+Finally, we test the new `asciiCoefmat` function:
+
+// begin.rcode, results="asis"
+library(stats)
+x = y = 1:10
+y[1] = 5
+lm(y ~ x) |> summary() |> coef() |> asciiCoefmat()
+// end.rcode
+

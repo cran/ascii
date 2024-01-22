@@ -38,8 +38,6 @@ RweaveAsciiSetup(
 \item{debug}{debug}
 
 \item{...}{...}
-
-\item{stylepath}{stylepath}
 }
 \description{
 RweaveAsciiSetup

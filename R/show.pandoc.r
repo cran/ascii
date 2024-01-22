@@ -49,14 +49,15 @@ header.pandoc <- function(caption = NULL, caption.level = NULL) {
 }
 
 
-## ##' escape.pandoc
-## ##'
-## ##' @keywords internal
-## ##' @param x x
-## escape.pandoc <- function(x) {
-##   xx <- gsub("\\|", " \\\\vert ", x)
-##   xx
-## }
+##' escape.pandoc
+##'
+##' @keywords internal
+##' @param x x
+escape.pandoc <- function(x) {
+  xx <- gsub("\\|", "\\\\|", x)
+  xxx <- gsub("\\*", "\\\\*", xx)
+  xxx
+}
 
 
 ##' show.pandoc.table
@@ -105,7 +106,7 @@ header.pandoc <- function(caption = NULL, caption.level = NULL) {
 ##' @param ... ...
 show.pandoc.table <- function(x, include.rownames = FALSE, include.colnames = FALSE, rownames = NULL, colnames = NULL, format = "f", digits = 2, decimal.mark = ".", na.print = "", caption = NULL, caption.level = NULL, width = 0, frame = NULL, grid = NULL, valign = NULL, header = FALSE, footer = FALSE, align = NULL, col.width = 1, style = NULL, lgroup = NULL, n.lgroup = NULL, lalign = "c", lvalign = "middle", lstyle = "h", rgroup = NULL, n.rgroup = NULL, ralign = "c", rvalign = "middle", rstyle = "h", tgroup = NULL, n.tgroup = NULL, talign = "c", tvalign = "middle", tstyle = "h", bgroup = NULL, n.bgroup = NULL, balign = "c", bvalign = "middle", bstyle = "h", ...) {
 
-  x <- tocharac(x, include.rownames, include.colnames, rownames, colnames, format, digits, decimal.mark, na.print)
+  x <- escape.pandoc(tocharac(x, include.rownames, include.colnames, rownames, colnames, format, digits, decimal.mark, na.print))
 
   nrowx <- nrow(x)
   ncolx <- ncol(x)
@@ -120,21 +121,23 @@ show.pandoc.table <- function(x, include.rownames = FALSE, include.colnames = FA
     style <- ""
     style <- expand(style, nrowx, ncolx)
   }
-  if ((is.logical(header) & header) | header >= 1) {
+  if ((is.logical(header) && header) || header >= 1) {
     style[1:min(nrow(style), header), ] <- "**"
     header <- 1
   }
   if (footer >= 1) {
     style[nrow(style):max((nrow(style)-footer+1), 1), ] <- "**"
   }
-  if (include.rownames & include.colnames) {
+  if (include.rownames && include.colnames) {
     style[1, 1] <- ""
   }
 
   before_cell_content <- after_cell_content <- style
 
-  x <- paste.matrix(before_cell_content, x, after_cell_content, sep = "", transpose.vector = TRUE)
-  
+  empty.cells = (trim(x) == "")
+  x <- paste.matrix(before_cell_content, trim(x), after_cell_content, sep = "", transpose.vector = TRUE)
+  x[empty.cells] = ""
+
   if (tstyle == "h")
     tstyle <- "s"
   if (bstyle == "h")
@@ -199,12 +202,12 @@ show.pandoc.table <- function(x, include.rownames = FALSE, include.colnames = FA
   if (is.null(align)) {
     align <- "l"
   }
-  if (is.null(lalign) & length(lgroup) > 0) {
+  if (is.null(lalign) && length(lgroup) > 0) {
     lalign <- "c"
   } else if (length(lgroup) == 0) {
     lalign <- NULL
   }
-  if (is.null(ralign) & length(rgroup) > 0) {
+  if (is.null(ralign) && length(rgroup) > 0) {
     ralign <- "c"
   } else if (length(rgroup) == 0) {
     ralign <- NULL

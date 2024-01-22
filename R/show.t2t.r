@@ -46,8 +46,11 @@ beauty.t2t <- function(x, beauti = c("e", "m", "s")) {
 ##' @keywords internal
 ##' @param x x
 escape.t2t <- function(x) {
-  xx <- gsub("\\|", "\\\\|", x)
-  xx
+  x <- gsub("\u2018\\*\\*\\*\u2019", "\\*\\*\\*", x)
+  x <- gsub("\u2018\\*\\*\u2019", "\\*\\*", x)
+  x <- gsub("\u2018\\*\u2019", "\\*", x)
+  x <- gsub("\u2018\\.\u2019", "\\.", x)
+  x
 }
 
 ##' show.t2t.table

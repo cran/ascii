@@ -1,0 +1,69 @@
+.. -*- mode: rst; noweb-default-code-mode: R-mode; -*-
+
+===========
+A Test File
+===========
+Friedrich Leisch (adapted by Mark Clements)
+-------------------------------------------
+
+We load the `ascii` package and set the output type as ``"rest"``.
+
+.. {r}
+library(ascii)
+options(asciiType="rest")
+.. ..
+
+A simple example: the integers from 1 to 10 are
+
+.. {r, results='asis'}
+ascii(1:10)
+.. ..
+.. {r, echo=FALSE, results='hide'}
+print(1:20)
+.. ..
+
+.. the above is just to ensure that 2 code chunks can follow each other
+
+We can also emulate a simple calculator:
+
+.. {r}
+1 + 1
+1 + pi
+sin(pi/2)
+.. ..
+
+Now we look at Gaussian data:
+
+.. {r, results='asis'}
+library(stats)
+set.seed(12345)
+ascii(x <- rnorm(20))
+ascii(t1 <- t.test(x))
+.. ..
+Note that we can easily integrate some numbers into standard text: The
+third element of vector `x` is :r:`x[3]`, the
+_p_-value of the test is :r:`format.pval(t1$p.value)`.
+
+Now we look at a summary of the famous `iris` data set, and we
+want to see the commands in the code chunks:
+
+.. {r, results='asis'}
+data(iris)
+ascii(summary(iris),header=TRUE)
+.. ..
+
+.. {r rest-fig-1, fig.cap='Pairs plot of the iris data'}
+library(graphics)
+pairs(iris)
+.. ..
+
+.. {r rest-fig-2, fig.cap='Boxplot of sepal length grouped by species'}
+boxplot(Sepal.Length~Species, data=iris)
+.. ..
+
+.. {r, results='asis'}
+library(stats)
+x = y = 1:10
+y[1] = 5
+lm(y ~ x) |> summary() |> coef() |> asciiCoefmat()
+.. ..

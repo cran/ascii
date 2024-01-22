@@ -1,0 +1,81 @@
+A Test File
+Friedrich Leisch (adapted by Mark Clements)
+
+We load the //ascii// package and set the output type as ``"t2t"``.
+
+```
+> library(ascii)
+> options(asciiType="t2t")
+```
+
+A simple example: the integers from 1 to 10 are
+```
+> ascii(1:10)
+```
+| 1.00   | 2.00   | 3.00   | 4.00   | 5.00   | 6.00   | 7.00   | 8.00   | 9.00   | 10.00   |
+
+We can also emulate a simple calculator:
+```
+> 1 + 1
+[1] 2
+> 1 + pi
+[1] 4.141593
+> sin(pi/2)
+[1] 1
+```
+
+Now we look at Gaussian data:
+
+```
+> library(stats)
+> print(x <- rnorm(20))
+ [1]  1.51147691  1.98695313 -0.21616947 -0.13651266  1.62580836  1.02118829
+ [7] -0.97009475 -0.12828241  1.02656049  0.17550365  0.01822383  0.89022874
+[13] -1.03039745  0.37366583  1.30378599  0.59946407  1.59985645  0.82649968
+[19]  0.57933292 -1.04160259
+> print(t1 <- t.test(x))
+	One Sample t-test
+
+data:  x
+t = 2.4615, df = 19, p-value = 0.02357
+alternative hypothesis: true mean is not equal to 0
+95 percent confidence interval:
+ 0.07497122 0.92657768
+sample estimates:
+mean of x 
+0.5007745 
+```
+Note that we can easily integrate some numbers into standard text: The
+third element of vector ``x`` is -0.216169466864421, the
+__p__-value of the test is 0.023572.
+
+Now we look at a summary of the famous //iris// data set, and we
+want to see the commands in the code chunks:
+
+```
+> data(iris)
+> ascii(summary(iris))
+```
+||     |  Sepal.Length   |  Sepal.Width    |  Petal.Length   |  Petal.Width    |       Species   
+| 1   | Min.   :4.300   | Min.   :2.000   | Min.   :1.000   | Min.   :0.100   | setosa    :50   
+| 2   | 1st Qu.:5.100   | 1st Qu.:2.800   | 1st Qu.:1.600   | 1st Qu.:0.300   | versicolor:50   
+| 3   | Median :5.800   | Median :3.000   | Median :4.350   | Median :1.300   | virginica :50   
+| 4   | Mean   :5.843   | Mean   :3.057   | Mean   :3.758   | Mean   :1.199   |                 
+| 5   | 3rd Qu.:6.400   | 3rd Qu.:3.300   | 3rd Qu.:5.100   | 3rd Qu.:1.800   |                 
+| 6   | Max.   :7.900   | Max.   :4.400   | Max.   :6.900   | Max.   :2.500   |                 
+
+```
+> library(graphics)
+> pairs(iris)
+```
+[T2t-test-1-007.jpg]
+
+Pairs plot of the iris data
+
+```
+> boxplot(Sepal.Length~Species, data=iris)
+```
+[T2t-test-1-008.jpg]
+
+Boxplot of sepal length grouped by species.
+

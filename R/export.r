@@ -261,11 +261,11 @@ section <- function(caption, caption.level = 1) {
 print.section <- function(x, backend = getOption("asciiBackend"), ...) {
   caption <- x$caption
   caption.level <- x$caption.level
-  if (backend == "asciidoc" | backend == "a2x")
+  if (backend == "asciidoc" || backend == "a2x")
     results <- header.asciidoc(caption, caption.level+1)
   if (backend == "t2t")
     results <- header.t2t(caption, caption.level)
-  if (backend == "pandoc" | backend == "markdown2pdf")
+  if (backend == "pandoc" || backend == "markdown2pdf")
     results <- header.pandoc(caption, caption.level)
   cat("\n", results, sep = "")
 }
@@ -301,7 +301,7 @@ print.paragraph <- function(x, ...) {
     cat(newline)
   }
   for (i in 1:length(text)) {
-    if (class(text[[i]]) == "sexpr") {
+    if (inherits(text[[i]], "sexpr")) {
       print(text[[i]])
     }
     else {
@@ -335,20 +335,20 @@ verbatim <- function(...) {
 ##' @author David Hajage
 print.verbatim <- function(x, backend = getOption("asciiBackend"), ...) {
   cat("\n")
-  if (backend == "asciidoc" | backend == "a2x")
+  if (backend == "asciidoc" || backend == "a2x")
     cat("----\n")
   if (backend == "t2t")
     cat("```\n")
-  if (backend == "pandoc" | backend == "markdown2pdf")
+  if (backend == "pandoc" || backend == "markdown2pdf")
     cat("\n~~~~~~~{.R}\n")
 
   cat(x, sep = "\n", ...)
 
-  if (backend == "asciidoc" | backend == "a2x")
+  if (backend == "asciidoc" || backend == "a2x")
     cat("----\n\n")
   if (backend == "t2t")
     cat("```\n\n")
-  if (backend == "pandoc" | backend == "markdown2pdf")
+  if (backend == "pandoc" || backend == "markdown2pdf")
     cat("~~~~~~~~~~~\n\n")
 }
 
@@ -404,20 +404,20 @@ print.out <- function(x, backend = getOption("asciiBackend"), ...) {
   results <- x[[2]]
   cat("\n")
   if (results == "verbatim") {
-    if (backend == "asciidoc" | backend == "a2x")
+    if (backend == "asciidoc" || backend == "a2x")
       cat("----\n")
     if (backend == "t2t")
       cat("```\n")
-    if (backend == "pandoc" | backend == "markdown2pdf")
+    if (backend == "pandoc" || backend == "markdown2pdf")
       cat("\n~~~~~~~{.R}\n")
   }
   cat(x[[1]], sep = "\n")
   if (results == "verbatim") {
-    if (backend == "asciidoc" | backend == "a2x")
+    if (backend == "asciidoc" || backend == "a2x")
       cat("----\n\n")
     if (backend == "t2t")
       cat("```\n\n")
-    if (backend == "pandoc" | backend == "markdown2pdf")
+    if (backend == "pandoc" || backend == "markdown2pdf")
       cat("~~~~~~~~~~~\n\n")
   } else {
     cat("\n")
@@ -495,11 +495,11 @@ graph <- fig
 ##' @export
 ##' @author David Hajage
 print.fig <- function(x, backend = getOption("asciiBackend"), ...) {
-  if (backend == "asciidoc" | backend == "a2x")
+  if (backend == "asciidoc" || backend == "a2x")
     results <- paste("image::", x, "[]", sep = "")
   if (backend == "t2t")
     results <- paste("[", x, "]", sep = "")
-  if (backend == "pandoc" | backend == "markdown2pdf")
+  if (backend == "pandoc" || backend == "markdown2pdf")
     results <- paste("![](", x, ")", sep = "")
   cat("\n", results, "\n\n", sep = "")
 }
@@ -631,11 +631,11 @@ createreport <- function(..., list = NULL, file = NULL, format = NULL, open = TR
           cat(".", names(args)[i], "\n", sep = "")
         }
       }
-      if ("asciiTable" %in% class(arg) | "asciiList" %in% class(arg) | "asciiMixed" %in% class(arg)) {
+      if (inherits(arg,c("asciiTable","asciiList","asciiMixed"))) {
         cat("\n")
         print(arg)
         cat("\n")
-      } else if ("out" %in% class(arg) | "section" %in% class(arg) | "paragraph" %in% class(arg) | "verbatim" %in% class(arg) | "fig" %in% class(arg)) {
+      } else if (inherits(arg,c("out","section","paragraph","verbatim","fig"))) {
         print(arg, backend = backend)
       } else {
         print(out(arg, "verbatim"), backend = backend)

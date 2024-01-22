@@ -61,8 +61,9 @@ beauty.rest <- function(x, beauti = c("e", "m", "s")) {
 ##' @keywords internal
 ##' @param x x
 escape.rest <- function(x) {
-  xx <- gsub("\\|", "\\\\|", x)
-  xx
+  x <- gsub("\\|", "\\\\|", x)
+  x <- gsub("\\*", "\\\\*", x)
+  x
 }
 
 ##' show.rest.table

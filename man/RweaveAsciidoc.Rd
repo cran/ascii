@@ -72,7 +72,9 @@ A wrapper for \code{Sweave} can be used, named \code{Asciidoc}.
 }
 \examples{
   \dontrun{
-Asciidoc("file.Rnw")
+Asciidoc(system.file("examples/Asciidoc-test-1.nw",package="ascii"))
+Asciidoc(system.file("examples/Asciidoc-test-1.nw",package="ascii"),weaverAsciidoc())
+system("asciidoc Asciidoc-test-1.txt")
   }
 
 }

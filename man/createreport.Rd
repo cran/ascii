@@ -105,6 +105,4 @@ options(op)
 }
 \author{
 David Hajage
-
-David Hajage
 }

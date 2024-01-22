@@ -1,66 +1,85 @@
+# -*- mode: org; noweb-default-code-mode: R-mode; -*-
+
 #+title: A Test File
 #+author: Friedrich Leisch (adapted by Mark Clements)
 
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/setup/readthedocs.setup
+
 We load the =ascii= package and set the output type as ="org"=.
 
-#+BEGIN_SRC R :session *R* :results none :exports code
-library(ascii)
-options(asciiType="org")
-#+END_SRC
+#+BEGIN_example
+> library(ascii)
+> options(asciiType="org")
+#+END_example
 
 A simple example: the integers from 1 to 10 are
-#+BEGIN_SRC R :session *R* :results output wrap :exports both
-ascii(1:10,digits=0)
-#+end_src
-
-#+RESULTS:
-:RESULTS:
-| 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
-:END:
+#+BEGIN_example
+> ascii(1:10)
+#+END_example
+| 1.00 | 2.00 | 3.00 | 4.00 | 5.00 | 6.00 | 7.00 | 8.00 | 9.00 | 10.00 |
 
 We can also emulate a simple calculator:
-#+BEGIN_SRC R :results output :exports both
-1 + 1
-1 + pi
-sin(pi/2)
-#+END_SRC
+#+BEGIN_example
+> 1 + 1
+[1] 2
+> 1 + pi
+[1] 4.141593
+> sin(pi/2)
+[1] 1
+#+END_example
 
 Now we look at Gaussian data:
 
-#+BEGIN_SRC R :session *R* :results output wrap :exports both
-library(stats)
-print(ascii(x <- rnorm(20)))
-cat("\n")
-ascii(t1 <- t.test(x))
-#+END_SRC
+#+BEGIN_example
+> library(stats)
+> print(x <- rnorm(20))
+ [1]  0.4083734 -0.4152465  1.5856232  1.0936856 -0.6581304 -0.3203644
+ [7]  0.1428722  0.3862252  0.1537557 -0.1090822  1.4427597  0.7235286
+[13] -2.2272050  0.3893139 -0.9597389 -0.5666136  0.4951154 -1.2087148
+[19]  1.2536455  0.5447415
+> print(t1 <- t.test(x))
+	One Sample t-test
 
+data:  x
+t = 0.50795, df = 19, p-value = 0.6173
+alternative hypothesis: true mean is not equal to 0
+95 percent confidence interval:
+ -0.3361669  0.5516213
+sample estimates:
+mean of x 
+0.1077272 
+#+END_example
 Note that we can easily integrate some numbers into standard text: The
-third element of vector =x= is src_R[:session *R* :results value]{x[3]}, the
-$p$-value of the test is src_R[:session *R*]{format.pval(t1$p.value)}.
+third element of vector =x= is 1.58562316670301, the
+$p$-value of the test is 0.61734.
 
 Now we look at a summary of the famous =iris= data set, and we
 want to see the commands in the code chunks:
 
-#+BEGIN_SRC R :session *R* :results output wrap :exports both
-data(iris)
-ascii(summary(iris))
-#+end_src
+#+BEGIN_example
+> data(iris)
+> ascii(summary(iris))
+#+END_example
+|   |  Sepal.Length |  Sepal.Width  |  Petal.Length |  Petal.Width  |       Species |
+|---+---------------+---------------+---------------+---------------+---------------|
+| 1 | Min.   :4.300 | Min.   :2.000 | Min.   :1.000 | Min.   :0.100 | setosa    :50 |
+| 2 | 1st Qu.:5.100 | 1st Qu.:2.800 | 1st Qu.:1.600 | 1st Qu.:0.300 | versicolor:50 |
+| 3 | Median :5.800 | Median :3.000 | Median :4.350 | Median :1.300 | virginica :50 |
+| 4 | Mean   :5.843 | Mean   :3.057 | Mean   :3.758 | Mean   :1.199 |               |
+| 5 | 3rd Qu.:6.400 | 3rd Qu.:3.300 | 3rd Qu.:5.100 | 3rd Qu.:1.800 |               |
+| 6 | Max.   :7.900 | Max.   :4.400 | Max.   :6.900 | Max.   :2.500 |               |
 
-#+BEGIN_SRC R :session *R* :results graphics :exports both :file "iris.png" 
-library(graphics)
-pairs(iris)
-#+end_src
+#+BEGIN_example
+> library(graphics)
+> pairs(iris)
+#+END_example
+[[file:Org-test-1-007.jpg]]
 
-#+caption: Pairs plot of the iris data.
-#+RESULTS:
-[[file:iris.png]]
+Pairs plot of the iris data.
 
-#+BEGIN_SRC R :session *R* :results graphics :exports both :file "iris-boxplot.png" 
-boxplot(Sepal.Length~Species, data=iris)
-#+end_src
+#+BEGIN_example
+> boxplot(Sepal.Length~Species, data=iris)
+#+END_example
+[[file:Org-test-1-008.jpg]]
 
-#+caption: Boxplot of sepal length grouped by species.
-#+RESULTS:
-[[file:iris-boxplot.png]]
-
-
+Boxplot of sepal length grouped by species.

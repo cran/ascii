@@ -77,8 +77,6 @@ weaverOrg()
 \item{...}{...}
 
 \item{use.cache}{use.cache}
-
-\item{stylepath}{stylepath}
 }
 \value{
 None value is returned. From a .Rnw noweb file, the corresponding
@@ -110,7 +108,8 @@ A wrapper for \code{Sweave} can be used, named \code{Org}.
 }
 \examples{
   \dontrun{
-Org("file.Rnw")
+Org(system.file("examples/Org-test-1.nw",package="ascii"))
+Org(system.file("examples/Org-test-1.nw",package="ascii"),weaverOrg())
   }
 
 }

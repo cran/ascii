@@ -99,8 +99,10 @@ vsep.textile <- function (align = NULL, valign = NULL, style = NULL) {
 ##' @keywords internal
 ##' @param x x
 escape.textile <- function(x) {
-  xx <- gsub("\\|", "\\\\|", x)
-  xx
+  x <- gsub("\\|", "&#124;", x)
+  x <- gsub("\u2018", "'", x)
+  x <- gsub("\u2019", "'", x)
+  x
 }
 
 ##' show.textile.table

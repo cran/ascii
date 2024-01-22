@@ -5,7 +5,7 @@
 ##' @param output output
 ##' @param quiet quite
 ##' @param debug debug
-##' @param stylepath stylepath
+## ##' @param stylepath stylepath
 ##' @param ... ...
 ##' @keywords internal
 RweaveAsciiSetup <-
@@ -358,7 +358,7 @@ makeRweaveAsciiCodeRunner <- function(evalFunc = RweaveEvalWithOpt)
                 cat(output, file = chunkout)
                 ## Change for ascii package
                 if(options$results == "ascii")
-                  cat("\n", file = chunkout)
+                  cat("\n\n", file = chunkout) # second nl due to run-on for ReST
                 ## End of change for ascii package
                 count <- sum(strsplit(output, NULL)[[1L]] == "\n")
                 if (count > 0L) {
@@ -686,7 +686,9 @@ RtangleAsciiWritedoc <- function(object, chunk)
 ##' @rdname RweaveAsciidoc
 ##' @examples
 ##'   \dontrun{
-##' Asciidoc("file.Rnw")
+##' Asciidoc(system.file("examples/Asciidoc-test-1.nw",package="ascii"))
+##' Asciidoc(system.file("examples/Asciidoc-test-1.nw",package="ascii"),weaverAsciidoc())
+##' system("asciidoc Asciidoc-test-1.txt")
 ##'   }
 ##'
 RweaveAsciidoc <- function()
@@ -745,7 +747,7 @@ RweaveT2t <- function()
 ##' @param output output
 ##' @param quiet quite
 ##' @param debug debug
-##' @param stylepath stylepath
+## ##' @param stylepath stylepath
 ##' @param ... ...
 ##' @rdname RweaveT2t
 ##' @keywords internal
@@ -784,7 +786,8 @@ formals(RweaveT2tSetup) <-alist(file=, syntax=, output=NULL, quiet=FALSE, debug=
 ##' @rdname RweaveOrg
 ##' @examples
 ##'   \dontrun{
-##' Org("file.Rnw")
+##' Org(system.file("examples/Org-test-1.nw",package="ascii"))
+##' Org(system.file("examples/Org-test-1.nw",package="ascii"),weaverOrg())
 ##'   }
 ##'
 RweaveOrg <- function()
@@ -803,7 +806,7 @@ RweaveOrg <- function()
 ##' @param output output
 ##' @param quiet quite
 ##' @param debug debug
-##' @param stylepath stylepath
+## ##' @param stylepath stylepath
 ##' @param ... ...
 ##' @rdname RweaveOrg
 ##' @keywords internal
@@ -861,7 +864,7 @@ RweavePandoc <- function()
 ##' @param output output
 ##' @param quiet quite
 ##' @param debug debug
-##' @param stylepath stylepath
+## ##' @param stylepath stylepath
 ##' @param ... ...
 ##' @rdname RweavePandoc
 ##' @keywords internal
@@ -919,7 +922,7 @@ RweaveTextile <- function()
 ##' @param output output
 ##' @param quiet quite
 ##' @param debug debug
-##' @param stylepath stylepath
+## ##' @param stylepath stylepath
 ##' @param ... ...
 ##' @rdname RweaveTextile
 ##' @keywords internal
@@ -977,13 +980,13 @@ RweaveReST <- function()
 ##' @param output output
 ##' @param quiet quite
 ##' @param debug debug
-##' @param stylepath stylepath
+## ##' @param stylepath stylepath
 ##' @param ... ...
 ##' @rdname RweaveReST
 ##' @keywords internal
 RweaveReSTSetup <- RweaveAsciiSetup
 formals(RweaveReSTSetup) <-alist(file=, syntax=, output=NULL, quiet=FALSE, debug=FALSE,
-                                 extension="rst", backend="docutils, sphinx, ...", openSchunk=".. code-block:: r\n",
+                                 extension="rst", backend="docutils, sphinx, ...", openSchunk="\n.. code-block:: r\n",
                                  closeSchunk="\n\n", openSinput="", closeSinput="",
-                                 openSoutput="\n", closeSoutput="", indent="  ", openInclude =".. include::",
-                                 closeInclude=".rst", openFig=".. image:: ", closeFig="", ...=)
+                                 openSoutput="\n\n", closeSoutput="\n", indent="  ", openInclude =".. include::",
+                                 closeInclude=".rst", openFig=".. figure:: ", closeFig="", ...=)

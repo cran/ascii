@@ -77,8 +77,6 @@ weaverPandoc()
 \item{...}{...}
 
 \item{use.cache}{use.cache}
-
-\item{stylepath}{stylepath}
 }
 \value{
 None value is returned. From a .Rnw noweb file, the corresponding
